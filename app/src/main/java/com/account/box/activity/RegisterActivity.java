@@ -1,6 +1,6 @@
 package com.account.box.activity;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +12,10 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.account.box.R;
+import com.account.box.Store;
+import com.account.box.activity.persenter.LoginPersenter;
+import com.account.box.activity.view.LoginView;
+import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.JJsActivity;
 
 import java.util.List;
@@ -25,7 +29,7 @@ import butterknife.OnClick;
  * Created by aa on 2017/8/10.
  */
 
-public class RegisterActivity extends JJsActivity {
+public class RegisterActivity extends JJsActivity<LoginPersenter> implements LoginView {
 
     @BindView(R.id.tool)
     Toolbar mTool;
@@ -44,15 +48,18 @@ public class RegisterActivity extends JJsActivity {
     @BindView(R.id.iv_clear)
     ImageView mIvClear;
 
-    public static void open(Context context) {
-        Intent intent = new Intent(context, RegisterActivity.class);
-        context.startActivity(intent);
+
+    public static void open(Activity activity) {
+        Intent intent = new Intent(activity, RegisterActivity.class);
+        activity.startActivityForResult(intent, Store.Login.openRegisterCode);
     }
+
 
     @Override
     public void onCreateView(@Nullable Bundle bundle) {
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
+        mPersenter = new LoginPersenter(this);
         //设置toolbar
         mTool.setSubtitle("注册");
         setSupportActionBar(mTool);
@@ -136,10 +143,28 @@ public class RegisterActivity extends JJsActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.iv_clear:
+                mEditUserPassword.setText("");
                 break;
             case R.id.sv_toRegister:
+                mPersenter.register(mEditUserAccount.getText().toString(), mEditUserPassword.getText().toString());
                 break;
         }
     }
 
+    @Override
+    public void ResponseSuccess(int i, String s) {
+
+    }
+
+    @Override
+    public void userBeanSuccess() {
+        ToastUtils.showShort("注册成功");
+        setResult(Store.TAG.RESULT_OK);
+        finish();
+    }
+
+    @Override
+    public void sendSmsSuccess(String code) {
+        ToastUtils.showShort("短信发送成功");
+    }
 }

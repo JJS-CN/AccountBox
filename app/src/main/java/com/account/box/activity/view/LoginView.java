@@ -8,4 +8,9 @@ import com.jjs.base.mvp.BaseView;
  */
 
 public interface LoginView extends BaseView {
+    void userBeanSuccess();
+
+    void sendSmsSuccess(String code);
+
+
 }

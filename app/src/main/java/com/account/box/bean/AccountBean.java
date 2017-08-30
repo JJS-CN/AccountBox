@@ -9,7 +9,7 @@ import org.greenrobot.greendao.annotation.Generated;
  * Created by Administrator on 2017/8/26.
  */
 @Entity
-public class AccountBeanSQL {
+public class AccountBean {
     @Id
     private Long id;
     private Long userId;
@@ -18,9 +18,9 @@ public class AccountBeanSQL {
     private String accountPwd;
     private String accountMsg;
     private int accountListId;//所属层级id
-    @Generated(hash = 1098454673)
-    public AccountBeanSQL(Long id, Long userId, String accountName,
-            String accountPwd, String accountMsg, int accountListId) {
+    @Generated(hash = 1982883350)
+    public AccountBean(Long id, Long userId, String accountName, String accountPwd,
+            String accountMsg, int accountListId) {
         this.id = id;
         this.userId = userId;
         this.accountName = accountName;
@@ -28,8 +28,8 @@ public class AccountBeanSQL {
         this.accountMsg = accountMsg;
         this.accountListId = accountListId;
     }
-    @Generated(hash = 1396844397)
-    public AccountBeanSQL() {
+    @Generated(hash = 1267506976)
+    public AccountBean() {
     }
     public Long getId() {
         return this.id;

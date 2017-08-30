@@ -16,8 +16,10 @@ import android.widget.ImageView;
 
 import com.account.box.APP;
 import com.account.box.R;
+import com.account.box.Store;
 import com.account.box.activity.persenter.LoginPersenter;
 import com.account.box.activity.view.LoginView;
+import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.jjs.base.JJsActivity;
@@ -135,7 +137,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
                 if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     if (s.toString().length() > 0) {
                         //有数据时，查询本地保存头像，有头像时动态修改avatar内容进行展示，类QQ
-                        File avatarFile = new File(APP.getAvatarFile(), s.toString());
+                        File avatarFile = new File(APP.getInstance().getAvatarFile(), s.toString());
                         if (avatarFile.exists()) {
                             Glide.with(LoginActivity.this).load(avatarFile).apply(new RequestOptions().transform(new GlideUtils.CircleTransform())).into(ivAvatar);
                         }
@@ -153,7 +155,9 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
 
     @Override
     public void onActivityResult(int i, Intent intent) {
-
+        if (i == Store.Login.openRegisterCode) {
+            finish();
+        }
     }
 
     @Override
@@ -167,7 +171,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
     }
 
 
-    @OnClick({R.id.iv_clear, R.id.sv_toRegister, R.id.sv_toLogin})
+    @OnClick({R.id.iv_clear, R.id.sv_toRegister, R.id.sv_toLogin, R.id.tv_toReset})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.iv_clear:
@@ -179,15 +183,26 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
             case R.id.sv_toLogin:
                 mPersenter.login(editUserAccount.getText().toString(), editUserPassword.getText().toString(), "");
                 break;
+            case R.id.tv_toReset:
+
+                break;
         }
     }
 
     @Override
     public void ResponseSuccess(int i, String s) {
-        if (i == 1) {
 
-        } else {
+    }
 
-        }
+    @Override
+    public void userBeanSuccess() {
+        ToastUtils.showShort("注册成功");
+        setResult(Store.TAG.RESULT_OK);
+        finish();
+    }
+
+    @Override
+    public void sendSmsSuccess(String code) {
+        ToastUtils.showShort("短信发送成功");
     }
 }

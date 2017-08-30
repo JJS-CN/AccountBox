@@ -11,5 +11,7 @@ import com.jjs.base.JJsStore;
 public class Store extends JJsStore {
     public static class Login {
         public static String isLogin = "isLogin";
+        public static int openRegisterCode = 1;
+        public static int openResetCode = 2;
     }
 }

@@ -9,20 +9,20 @@ import org.greenrobot.greendao.annotation.Generated;
  * Created by Administrator on 2017/8/26.
  */
 @Entity
-public class AccountListBeanSQL {
+public class AccountListBean {
     @Id
     private Long id;
 
     private Long userId;
     private Long parentId;//父级id，先通过userId且无父级查询第一级，遍历所有结果查询第二级，进行循环；再通过查询出来的list层级，去遍历账号表
-    @Generated(hash = 90130426)
-    public AccountListBeanSQL(Long id, Long userId, Long parentId) {
+    @Generated(hash = 185813543)
+    public AccountListBean(Long id, Long userId, Long parentId) {
         this.id = id;
         this.userId = userId;
         this.parentId = parentId;
     }
-    @Generated(hash = 572677699)
-    public AccountListBeanSQL() {
+    @Generated(hash = 597413548)
+    public AccountListBean() {
     }
     public Long getId() {
         return this.id;

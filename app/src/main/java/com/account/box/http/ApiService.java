@@ -42,6 +42,6 @@ public class ApiService extends JJsApiService {
          */
         @POST("sendSMS")
         @FormUrlEncoded
-        Observable<RxResult<UserBean>> sendSMS(@Field("phone") String phone);
+        Observable<RxResult<String>> sendSMS(@Field("phone") String phone);
     }
 }
