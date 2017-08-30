@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="DefaultTextSize">12sp</dimen>
+    <dimen name="BarTextSize">16sp</dimen>
+    <dimen name="TitleTextSize">14sp</dimen>
+</resources>
