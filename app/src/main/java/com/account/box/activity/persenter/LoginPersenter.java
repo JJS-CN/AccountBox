@@ -7,7 +7,6 @@ import com.account.box.activity.view.LoginView;
 import com.account.box.bean.RxResult;
 import com.account.box.bean.UserBean;
 import com.account.box.bean.UserBeanDao;
-import com.account.box.bean.UserSQLDao;
 import com.account.box.http.ApiService;
 import com.account.box.http.RxSub;
 import com.blankj.utilcode.util.ToastUtils;
@@ -53,7 +52,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             return;
         }
         List<UserBean> list = mUserBeanDao.queryBuilder()
-                .where(UserSQLDao.Properties.Username.eq(phone))
+                .where(UserBeanDao.Properties.Username.eq(phone))
                 .build().list();
         if (list == null || list.size() == 0) {
             ToastUtils.showShort("用户不存在");
@@ -113,7 +112,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             return;
         }
         List<UserBean> list = mUserBeanDao.queryBuilder()
-                .where(UserSQLDao.Properties.Username.eq(phone))
+                .where(UserBeanDao.Properties.Username.eq(phone))
                 .build().list();
         if (list == null || list.size() == 0) {
             ToastUtils.showShort("用户不存在");

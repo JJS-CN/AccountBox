@@ -15,7 +15,7 @@ import java.io.File;
  * Created by aa on 2017/8/8.
  */
 
-public class APP extends MultiDexAPP {
+public class APP extends MultiDexAPP{
     private static APP mApplication;
     public UserBean mUserBean;//用户数据
 

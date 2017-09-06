@@ -155,6 +155,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
 
     @Override
     public void onActivityResult(int i, Intent intent) {
+        //从注册界面返回成功，需要关闭界面
         if (i == Store.Login.openRegisterCode) {
             finish();
         }
@@ -196,6 +197,9 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
 
     @Override
     public void userBeanSuccess() {
+        //打开主界面
+        MainActivity.open(this);
+        //关闭本界面
         ToastUtils.showShort("注册成功");
         setResult(Store.TAG.RESULT_OK);
         finish();

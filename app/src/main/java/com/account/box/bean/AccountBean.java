@@ -17,10 +17,10 @@ public class AccountBean {
     private String accountName;
     private String accountPwd;
     private String accountMsg;
-    private int accountListId;//所属层级id
-    @Generated(hash = 1982883350)
+    private Long accountListId;//所属层级id
+    @Generated(hash = 562823857)
     public AccountBean(Long id, Long userId, String accountName, String accountPwd,
-            String accountMsg, int accountListId) {
+            String accountMsg, Long accountListId) {
         this.id = id;
         this.userId = userId;
         this.accountName = accountName;
@@ -61,10 +61,10 @@ public class AccountBean {
     public void setAccountMsg(String accountMsg) {
         this.accountMsg = accountMsg;
     }
-    public int getAccountListId() {
+    public Long getAccountListId() {
         return this.accountListId;
     }
-    public void setAccountListId(int accountListId) {
+    public void setAccountListId(Long accountListId) {
         this.accountListId = accountListId;
     }
 }
