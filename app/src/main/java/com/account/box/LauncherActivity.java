@@ -23,5 +23,6 @@ public class LauncherActivity extends Activity {
         } else {
             LoginActivity.open(this);
         }
+        finish();
     }
 }

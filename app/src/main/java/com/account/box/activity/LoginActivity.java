@@ -68,6 +68,11 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
     public void onCreateView(@Nullable Bundle bundle) {
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        mPersenter = new LoginPersenter(this);
+        if (APP.isDebug) {
+            mPersenter.login("jjs", "123456", "");
+        }
+
         //设置toolbar
         mTool.setSubtitle("登陆");
         mTool.setLogo(R.drawable.ic_launcher);
@@ -150,7 +155,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
             //进行sd卡读写权限的申请
             PermissionSteward.requestPermission(this, 1, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
-        mPersenter = new LoginPersenter(this);
+
     }
 
     @Override

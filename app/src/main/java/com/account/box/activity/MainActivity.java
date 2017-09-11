@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -18,6 +20,7 @@ import com.account.box.R;
 import com.account.box.bean.AccountBeanDao;
 import com.account.box.bean.AccountListBean;
 import com.account.box.bean.AccountListBeanDao;
+import com.account.box.utils.AddDialog;
 import com.blankj.utilcode.util.LogUtils;
 import com.jjs.base.JJsActivity;
 
@@ -25,6 +28,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends JJsActivity {
 
@@ -41,6 +45,10 @@ public class MainActivity extends JJsActivity {
     NavigationView mNavigationLeft;
     @BindView(R.id.drawer)
     DrawerLayout mDrawer;
+
+    @BindView(R.id.iv_float)
+    FloatingActionButton mIvFloat;
+
     //数据库操作层
     AccountListBeanDao mAccountListDao;
     AccountBeanDao mAccountDao;
@@ -60,21 +68,15 @@ public class MainActivity extends JJsActivity {
         //设置toolbar
         mTool.setSubtitle("账号列表");
         setSupportActionBar(mTool);
-        mTool.setNavigationIcon(R.drawable.bili_default_avatar);
+        mTool.setNavigationIcon(R.drawable.main_default_avatar);
         mTool.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //判断是否打开侧边栏进行关闭，其实不需要、直接打开即可
-                mDrawer.openDrawer(View.FOCUS_LEFT);
-              /*  boolean showLeft = mDrawer.isDrawerOpen(View.FOCUS_LEFT);
-                if (showLeft) {
-                    mDrawer.openDrawer(View.FOCUS_LEFT);
-                } else {
-                    mDrawer.closeDrawer(View.FOCUS_LEFT);
-                }*/
+                mDrawer.openDrawer(Gravity.LEFT);
             }
         });
-
+        LogUtils.e("查询开始");
         //设置刷新控件
         mSwipe.setColorSchemeColors(Color.parseColor("#FF4081"), Color.parseColor("#303F9F"), Color.parseColor("#33FFFF"));
         mSwipe.setRefreshing(true);
@@ -88,7 +90,9 @@ public class MainActivity extends JJsActivity {
         //查询完毕关闭加载动画
         mSwipe.setRefreshing(false);
         //查看数据
+        LogUtils.e("查询结束");
         LogUtils.e(mAccountList.toString());
+
 
     }
 
@@ -108,10 +112,13 @@ public class MainActivity extends JJsActivity {
     }
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // TODO: add setContentView(...) invocation
-        ButterKnife.bind(this);
+    @OnClick({R.id.iv_float})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.iv_float:
+                //打开添加dialog
+                new AddDialog(this).show();
+                break;
+        }
     }
 }
