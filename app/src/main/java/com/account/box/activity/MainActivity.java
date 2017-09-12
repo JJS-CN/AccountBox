@@ -17,11 +17,13 @@ import android.widget.LinearLayout;
 
 import com.account.box.APP;
 import com.account.box.R;
+import com.account.box.bean.AccountBean;
 import com.account.box.bean.AccountBeanDao;
 import com.account.box.bean.AccountListBean;
 import com.account.box.bean.AccountListBeanDao;
 import com.account.box.utils.AddDialog;
 import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.JJsActivity;
 
 import java.util.List;
@@ -90,8 +92,11 @@ public class MainActivity extends JJsActivity {
         //查询完毕关闭加载动画
         mSwipe.setRefreshing(false);
         //查看数据
-        LogUtils.e("查询结束");
         LogUtils.e(mAccountList.toString());
+        List<AccountBean> lists = mAccountDao.queryBuilder()
+                .where(AccountBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId()))
+                .build().list();
+        LogUtils.e(lists.toString());
 
 
     }
@@ -117,7 +122,18 @@ public class MainActivity extends JJsActivity {
         switch (view.getId()) {
             case R.id.iv_float:
                 //打开添加dialog
-                new AddDialog(this).show();
+                new AddDialog(this)
+                        .setOnChangeListener(new AddDialog.OnChangeListner() {
+                            @Override
+                            public void onChange(int type) {
+                                if (type == 0) {
+                                    ToastUtils.showShort("账号已添加");
+                                } else if (type == 1) {
+                                    ToastUtils.showShort("分组已添加");
+                                }
+                            }
+                        })
+                        .show();
                 break;
         }
     }

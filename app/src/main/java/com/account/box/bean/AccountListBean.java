@@ -23,11 +23,15 @@ public class AccountListBean {
     @ToMany(referencedJoinProperty = "accountListId")
     private List<AccountBean> accountList;
 
-    /** Used to resolve relations */
+    /**
+     * Used to resolve relations
+     */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
-    /** Used for active entity operations. */
+    /**
+     * Used for active entity operations.
+     */
     @Generated(hash = 1224806151)
     private transient AccountListBeanDao myDao;
 
@@ -40,6 +44,7 @@ public class AccountListBean {
 
     @Generated(hash = 597413548)
     public AccountListBean() {
+
     }
 
     public Long getId() {
@@ -67,6 +72,18 @@ public class AccountListBean {
         this.name = name;
     }
 
+    @Override
+    public String toString() {
+        return "AccountListBean{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", name='" + name + '\'' +
+                ", accountList=" + accountList +
+                ", daoSession=" + daoSession +
+                ", myDao=" + myDao +
+                '}';
+    }
+
     /**
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
@@ -90,7 +107,9 @@ public class AccountListBean {
         return accountList;
     }
 
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    /**
+     * Resets a to-many relationship, making the next get call to query for a fresh result.
+     */
     @Generated(hash = 1511731010)
     public synchronized void resetAccountList() {
         accountList = null;

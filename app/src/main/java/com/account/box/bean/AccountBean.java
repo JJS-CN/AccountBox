@@ -14,15 +14,18 @@ public class AccountBean {
     private Long id;
     private Long userId;
 
+    private String accoutTitle;//标题
     private String accountName;
     private String accountPwd;
     private String accountMsg;
     private Long accountListId;//所属层级id
-    @Generated(hash = 562823857)
-    public AccountBean(Long id, Long userId, String accountName, String accountPwd,
-            String accountMsg, Long accountListId) {
+
+    @Generated(hash = 368640149)
+    public AccountBean(Long id, Long userId, String accoutTitle, String accountName,
+            String accountPwd, String accountMsg, Long accountListId) {
         this.id = id;
         this.userId = userId;
+        this.accoutTitle = accoutTitle;
         this.accountName = accountName;
         this.accountPwd = accountPwd;
         this.accountMsg = accountMsg;
@@ -66,5 +69,24 @@ public class AccountBean {
     }
     public void setAccountListId(Long accountListId) {
         this.accountListId = accountListId;
+    }
+    public String getAccoutTitle() {
+        return this.accoutTitle;
+    }
+    public void setAccoutTitle(String accoutTitle) {
+        this.accoutTitle = accoutTitle;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountBean{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", accoutTitle='" + accoutTitle + '\'' +
+                ", accountName='" + accountName + '\'' +
+                ", accountPwd='" + accountPwd + '\'' +
+                ", accountMsg='" + accountMsg + '\'' +
+                ", accountListId=" + accountListId +
+                '}';
     }
 }
