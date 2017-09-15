@@ -13,7 +13,7 @@ import java.util.List;
  * Created by Administrator on 2017/8/26.
  */
 @Entity
-public class AccountListBean {
+public class GroupBean {
     @Id
     private Long id;
 
@@ -29,22 +29,20 @@ public class AccountListBean {
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
-    /**
-     * Used for active entity operations.
-     */
-    @Generated(hash = 1224806151)
-    private transient AccountListBeanDao myDao;
+    /** Used for active entity operations. */
+    @Generated(hash = 1765898500)
+    private transient GroupBeanDao myDao;
 
-    @Generated(hash = 258905422)
-    public AccountListBean(Long id, Long userId, String name) {
+
+    @Generated(hash = 1468337048)
+    public GroupBean(Long id, Long userId, String name) {
         this.id = id;
         this.userId = userId;
         this.name = name;
     }
 
-    @Generated(hash = 597413548)
-    public AccountListBean() {
-
+    @Generated(hash = 405578774)
+    public GroupBean() {
     }
 
     public Long getId() {
@@ -74,7 +72,7 @@ public class AccountListBean {
 
     @Override
     public String toString() {
-        return "AccountListBean{" +
+        return "GroupBean{" +
                 "id=" + id +
                 ", userId=" + userId +
                 ", name='" + name + '\'' +
@@ -88,7 +86,7 @@ public class AccountListBean {
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
      */
-    @Generated(hash = 1041263266)
+    @Generated(hash = 1428806477)
     public List<AccountBean> getAccountList() {
         if (accountList == null) {
             final DaoSession daoSession = this.daoSession;
@@ -96,8 +94,7 @@ public class AccountListBean {
                 throw new DaoException("Entity is detached from DAO context");
             }
             AccountBeanDao targetDao = daoSession.getAccountBeanDao();
-            List<AccountBean> accountListNew = targetDao
-                    ._queryAccountListBean_AccountList(id);
+            List<AccountBean> accountListNew = targetDao._queryGroupBean_AccountList(id);
             synchronized (this) {
                 if (accountList == null) {
                     accountList = accountListNew;
@@ -107,9 +104,7 @@ public class AccountListBean {
         return accountList;
     }
 
-    /**
-     * Resets a to-many relationship, making the next get call to query for a fresh result.
-     */
+    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 1511731010)
     public synchronized void resetAccountList() {
         accountList = null;
@@ -152,11 +147,12 @@ public class AccountListBean {
     }
 
     /** called by internal mechanisms, do not call yourself. */
-    @Generated(hash = 67029396)
+    @Generated(hash = 1477281962)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getAccountListBeanDao() : null;
+        myDao = daoSession != null ? daoSession.getGroupBeanDao() : null;
     }
+
 
 
 }

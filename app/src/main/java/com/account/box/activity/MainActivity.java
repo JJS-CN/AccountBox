@@ -19,8 +19,9 @@ import com.account.box.APP;
 import com.account.box.R;
 import com.account.box.bean.AccountBean;
 import com.account.box.bean.AccountBeanDao;
-import com.account.box.bean.AccountListBean;
-import com.account.box.bean.AccountListBeanDao;
+import com.account.box.bean.GroupBean;
+import com.account.box.bean.GroupBeanDao;
+import com.account.box.bean.UserBeanDao;
 import com.account.box.utils.AddDialog;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ToastUtils;
@@ -52,10 +53,11 @@ public class MainActivity extends JJsActivity {
     FloatingActionButton mIvFloat;
 
     //数据库操作层
-    AccountListBeanDao mAccountListDao;
+    GroupBeanDao mGroupBeanDao;
     AccountBeanDao mAccountDao;
+    UserBeanDao mUserBeanDao;
     //账户数据
-    List<AccountListBean> mAccountList;
+    List<GroupBean> mGroupBeanList;
 
 
     public static void open(Context context) {
@@ -64,9 +66,11 @@ public class MainActivity extends JJsActivity {
     }
 
     @Override
-    public void onCreateView(@Nullable Bundle bundle) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        mUnbinder=ButterKnife.bind(this);
+        hasExitDouble();
         //设置toolbar
         mTool.setSubtitle("账号列表");
         setSupportActionBar(mTool);
@@ -83,22 +87,29 @@ public class MainActivity extends JJsActivity {
         mSwipe.setColorSchemeColors(Color.parseColor("#FF4081"), Color.parseColor("#303F9F"), Color.parseColor("#33FFFF"));
         mSwipe.setRefreshing(true);
         //获取数据库操作层
-        mAccountListDao = APP.getInstance().getDaoSession().getAccountListBeanDao();
+        mGroupBeanDao = APP.getInstance().getDaoSession().getGroupBeanDao();
         mAccountDao = APP.getInstance().getDaoSession().getAccountBeanDao();
         //查询所有
-        mAccountList = mAccountListDao.queryBuilder()
-                .where(AccountListBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId()))
+        mGroupBeanList = mGroupBeanDao.queryBuilder()
+                .where(GroupBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId()))
                 .build().list();
         //查询完毕关闭加载动画
         mSwipe.setRefreshing(false);
         //查看数据
-        LogUtils.e(mAccountList.toString());
+        LogUtils.e(mGroupBeanList.toString());
         List<AccountBean> lists = mAccountDao.queryBuilder()
                 .where(AccountBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId()))
                 .build().list();
         LogUtils.e(lists.toString());
+        mUserBeanDao = APP.getInstance().getDaoSession().getUserBeanDao();
+        getAccountList();
+    }
 
-
+    private void getAccountList() {
+        APP.getInstance().mUserBean = mUserBeanDao.queryBuilder().where(UserBeanDao.Properties.Id.eq(APP.getInstance().mUserBean.getId())).unique();
+        LogUtils.e("base===============" + APP.getInstance().mUserBean.getBaseAccountList().toString());
+        LogUtils.e("group================" + APP.getInstance().mUserBean.getGroupList().toString());
+        mSwipe.setRefreshing(false);
     }
 
     @Override
@@ -131,6 +142,7 @@ public class MainActivity extends JJsActivity {
                                 } else if (type == 1) {
                                     ToastUtils.showShort("分组已添加");
                                 }
+                                getAccountList();
                             }
                         })
                         .show();

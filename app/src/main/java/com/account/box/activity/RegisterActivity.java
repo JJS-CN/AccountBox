@@ -54,11 +54,11 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
         activity.startActivityForResult(intent, Store.Login.openRegisterCode);
     }
 
-
     @Override
-    public void onCreateView(@Nullable Bundle bundle) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        ButterKnife.bind(this);
+        mUnbinder = ButterKnife.bind(this);
         mPersenter = new LoginPersenter(this);
         //设置toolbar
         mTool.setSubtitle("注册");
@@ -120,8 +120,8 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
             }
         });
 
-
     }
+
 
     @Override
     public void onActivityResult(int i, Intent intent) {

@@ -24,8 +24,8 @@ import com.account.box.APP;
 import com.account.box.R;
 import com.account.box.bean.AccountBean;
 import com.account.box.bean.AccountBeanDao;
-import com.account.box.bean.AccountListBean;
-import com.account.box.bean.AccountListBeanDao;
+import com.account.box.bean.GroupBean;
+import com.account.box.bean.GroupBeanDao;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -42,13 +42,13 @@ import java.util.List;
 
 public class AddDialog extends Dialog {
     //数据库操作层
-    AccountListBeanDao mAccountListDao;
+    GroupBeanDao mGroupBeanDao;
     AccountBeanDao mAccountDao;
-    List<AccountListBean> mAccountList;
+    List<GroupBean> mGroupBeanList;
 
     //状态改变监听，通知主界面需要更新数据
     OnChangeListner mChangeListner;
-    AccountListBean checkListBean;//选中分组
+    GroupBean checkListBean;//选中分组
 
     ImageView mIvClose;
     RadioGroup mRadioType;
@@ -86,14 +86,14 @@ public class AddDialog extends Dialog {
 
     private void init(final Context mContext) {
         //数据库操作层
-        mAccountListDao = APP.getInstance().getDaoSession().getAccountListBeanDao();
+        mGroupBeanDao = APP.getInstance().getDaoSession().getGroupBeanDao();
         mAccountDao = APP.getInstance().getDaoSession().getAccountBeanDao();
         //查询数据
-        mAccountList = new ArrayList<>();
-        mAccountList.add(new AccountListBean(0L, APP.getInstance().mUserBean.getId(), "根目录"));
-        List<AccountListBean> lists = mAccountListDao.queryBuilder().where(AccountListBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId())).build().list();
-        mAccountList.addAll(lists);
-        LogUtils.e(mAccountList.toString());
+        mGroupBeanList = new ArrayList<>();
+        mGroupBeanList.add(new GroupBean(APP.getInstance().mUserBean.getId(), APP.getInstance().mUserBean.getId(), "根目录"));
+        List<GroupBean> lists = mGroupBeanDao.queryBuilder().where(GroupBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId())).build().list();
+        mGroupBeanList.addAll(lists);
+        LogUtils.e(mGroupBeanList.toString());
         //布局实例化
         View view = View.inflate(mContext, R.layout.dialog_account_add, null);
         mIvClose = (ImageView) view.findViewById(R.id.iv_close);
@@ -115,9 +115,9 @@ public class AddDialog extends Dialog {
         mCheckGroup = (CardView) view.findViewById(R.id.card_check_group);
         //设置list
         mRvGroupList.setLayoutManager(new LinearLayoutManager(mContext));
-        QuickAdapter quickAdapter = new QuickAdapter<AccountListBean>(R.layout.recycler_group_list, mAccountList) {
+        QuickAdapter quickAdapter = new QuickAdapter<GroupBean>(R.layout.recycler_group_list, mGroupBeanList) {
             @Override
-            public void _convert(QuickHolder quickHolder, AccountListBean accountListBean) {
+            public void _convert(QuickHolder quickHolder, GroupBean accountListBean) {
                 quickHolder.setText(R.id.tv_group_name, accountListBean.getName());
             }
         };
@@ -125,8 +125,8 @@ public class AddDialog extends Dialog {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 mRvGroupList.setVisibility(View.GONE);
-                mTvOpenGroup.setText(mAccountList.get(position).getName());
-                checkListBean = mAccountList.get(position);
+                mTvOpenGroup.setText(mGroupBeanList.get(position).getName());
+                checkListBean = mGroupBeanList.get(position);
             }
         });
         mRvGroupList.setAdapter(quickAdapter);
@@ -208,7 +208,7 @@ public class AddDialog extends Dialog {
                     return;
                 }
                 boolean isRepeat = false;
-                for (AccountListBean listBean : mAccountList) {
+                for (GroupBean listBean : mGroupBeanList) {
                     if (listBean.getName().equals(groupName)) {
                         isRepeat = true;
                         break;
@@ -219,10 +219,10 @@ public class AddDialog extends Dialog {
                     return;
                 }
                 //先判断是否有重复的，再进行添加操作！！！
-                AccountListBean groupBean = new AccountListBean();
+                GroupBean groupBean = new GroupBean();
                 groupBean.setName(groupName);
                 groupBean.setUserId(APP.getInstance().mUserBean.getId());
-                long id = mAccountListDao.insert(groupBean);
+                long id = mGroupBeanDao.insert(groupBean);
                 if (id == 0) {
                     ToastUtils.showShort("新增失败");
                 } else if (mChangeListner != null) {

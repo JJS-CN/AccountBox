@@ -65,9 +65,10 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
     }
 
     @Override
-    public void onCreateView(@Nullable Bundle bundle) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ButterKnife.bind(this);
+        mUnbinder=ButterKnife.bind(this);
         mPersenter = new LoginPersenter(this);
         if (APP.isDebug) {
             mPersenter.login("jjs", "123456", "");
@@ -157,6 +158,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
         }
 
     }
+
 
     @Override
     public void onActivityResult(int i, Intent intent) {
