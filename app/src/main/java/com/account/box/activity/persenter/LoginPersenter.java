@@ -9,6 +9,7 @@ import com.account.box.bean.UserBean;
 import com.account.box.bean.UserBeanDao;
 import com.account.box.http.ApiService;
 import com.account.box.http.RxSub;
+import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.http.RetrofitUtils;
 import com.jjs.base.http.RxSchedulers;
@@ -58,7 +59,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             ToastUtils.showShort("用户不存在");
             return;
         }
-        if (!list.get(0).getPassword().equals(pwd)) {
+        if (!list.get(0).getPassword().equals(EncryptUtils.encryptMD5ToString(pwd))) {
             ToastUtils.showShort("密码不正确");
             return;
         }
@@ -84,7 +85,8 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         }
         UserBean userBean = new UserBean();
         userBean.setUsername(phone);
-        userBean.setPassword(pwd);
+        userBean.setPassword(EncryptUtils.encryptMD5ToString(pwd));
+        //生成rsa加密串
         mUserBeanDao.insert(userBean);
         APP.getInstance().mUserBean = userBean;
         mView.userBeanSuccess();
@@ -119,11 +121,11 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             return;
         }
         UserBean userBean = list.get(0);
-        if (!userBean.getPassword().equals(oldPwd)) {
+        if (!userBean.getPassword().equals(EncryptUtils.encryptMD5ToString(oldPwd))) {
             ToastUtils.showShort("旧密码不正确");
             return;
         }
-        userBean.setPassword(newPwd);
+        userBean.setPassword(EncryptUtils.encryptMD5ToString(newPwd));
         mUserBeanDao.update(userBean);
         APP.getInstance().mUserBean = userBean;
         mView.userBeanSuccess();

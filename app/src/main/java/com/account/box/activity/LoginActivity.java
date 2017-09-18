@@ -68,7 +68,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mUnbinder=ButterKnife.bind(this);
+        mUnbinder = ButterKnife.bind(this);
         mPersenter = new LoginPersenter(this);
         if (APP.isDebug) {
             mPersenter.login("jjs", "123456", "");
@@ -151,10 +151,10 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
                 }
             }
         });
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             //没有这个权限
             //进行sd卡读写权限的申请
-            PermissionSteward.requestPermission(this, 1, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            PermissionSteward.requestPermission(LoginActivity.this, 1, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 
     }

@@ -15,7 +15,7 @@ import java.io.File;
  * Created by aa on 2017/8/8.
  */
 
-public class APP extends MultiDexAPP{
+public class APP extends MultiDexAPP {
     private static APP mApplication;
     public UserBean mUserBean;//用户数据
 
@@ -61,7 +61,7 @@ public class APP extends MultiDexAPP{
     public DaoSession getDaoSession() {
         if (daoSession == null) {
             DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(this, "accountBox.db", null);
-            DaoMaster daoMaster = new DaoMaster(devOpenHelper.getWritableDb());
+            DaoMaster daoMaster = new DaoMaster(devOpenHelper.getEncryptedReadableDb("jjs123"));//进行加密
             daoSession = daoMaster.newSession();
         }
         return daoSession;

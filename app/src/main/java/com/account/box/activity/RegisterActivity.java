@@ -1,10 +1,13 @@
 package com.account.box.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,6 +20,7 @@ import com.account.box.activity.persenter.LoginPersenter;
 import com.account.box.activity.view.LoginView;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.JJsActivity;
+import com.jjs.base.Permission.PermissionSteward;
 
 import java.util.List;
 
@@ -119,6 +123,10 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
                 }
             }
         });
+        //申请权限
+        if (ContextCompat.checkSelfPermission(RegisterActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            PermissionSteward.requestPermission(RegisterActivity.this, 1, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
 
     }
 
@@ -146,7 +154,11 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
                 mEditUserPassword.setText("");
                 break;
             case R.id.sv_toRegister:
-                mPersenter.register(mEditUserAccount.getText().toString(), mEditUserPassword.getText().toString());
+                if (ContextCompat.checkSelfPermission(RegisterActivity.this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                    mPersenter.register(mEditUserAccount.getText().toString(), mEditUserPassword.getText().toString());
+                } else {
+                    PermissionSteward.requestPermission(RegisterActivity.this, 1, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                }
                 break;
         }
     }
