@@ -1,12 +1,12 @@
 package com.account.box.bean;
 
-import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 
 import java.util.List;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.DaoException;
 
 /**
  * 说明：
@@ -20,12 +20,8 @@ public class UserBean {
     private String password;//密码
     private String rsaPublicKey;//公钥
     private String rsaPrivateKey;//私钥
-
     @ToMany(referencedJoinProperty = "userId")
     private List<GroupBean> groupList;//组列表
-    @ToMany(referencedJoinProperty = "accountListId")
-    private List<AccountBean> baseAccountList;//跟目录账户
-
     /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
@@ -34,9 +30,10 @@ public class UserBean {
     private transient UserBeanDao myDao;
 
 
+
     @Generated(hash = 1501062659)
     public UserBean(Long id, String username, String password, String rsaPublicKey,
-                    String rsaPrivateKey) {
+            String rsaPrivateKey) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -47,6 +44,7 @@ public class UserBean {
     @Generated(hash = 1203313951)
     public UserBean() {
     }
+
 
 
     public Long getId() {
@@ -118,35 +116,6 @@ public class UserBean {
     }
 
     /**
-     * To-many relationship, resolved on first access (and after reset).
-     * Changes to to-many relations are not persisted, make changes to the target entity.
-     */
-    @Generated(hash = 1417208891)
-    public List<AccountBean> getBaseAccountList() {
-        if (baseAccountList == null) {
-            final DaoSession daoSession = this.daoSession;
-            if (daoSession == null) {
-                throw new DaoException("Entity is detached from DAO context");
-            }
-            AccountBeanDao targetDao = daoSession.getAccountBeanDao();
-            List<AccountBean> baseAccountListNew = targetDao
-                    ._queryUserBean_BaseAccountList(id);
-            synchronized (this) {
-                if (baseAccountList == null) {
-                    baseAccountList = baseAccountListNew;
-                }
-            }
-        }
-        return baseAccountList;
-    }
-
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
-    @Generated(hash = 1387540290)
-    public synchronized void resetBaseAccountList() {
-        baseAccountList = null;
-    }
-
-    /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
      */
@@ -188,6 +157,7 @@ public class UserBean {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getUserBeanDao() : null;
     }
+
 
 
 }

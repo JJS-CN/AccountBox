@@ -76,7 +76,7 @@ public class GroupBean {
                 "id=" + id +
                 ", userId=" + userId +
                 ", name='" + name + '\'' +
-                ", accountList=" + accountList +
+                ", accountList=" + getAccountList() +
                 ", daoSession=" + daoSession +
                 ", myDao=" + myDao +
                 '}';

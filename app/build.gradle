@@ -40,7 +40,7 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
-    compile 'com.github.JJS-CN:JBase:0.0.9'
+    compile 'com.github.JJS-CN:JBase:0.1.0'
     //greendao数据库和数据库加密
     compile 'org.greenrobot:greendao:3.2.2'
     compile 'net.zetetic:android-database-sqlcipher:3.5.6'

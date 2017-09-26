@@ -18,11 +18,9 @@ import com.account.box.R;
 import com.account.box.Store;
 import com.account.box.activity.persenter.LoginPersenter;
 import com.account.box.activity.view.LoginView;
+import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.JJsActivity;
-import com.jjs.base.Permission.PermissionSteward;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -125,7 +123,7 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
         });
         //申请权限
         if (ContextCompat.checkSelfPermission(RegisterActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            PermissionSteward.requestPermission(RegisterActivity.this, 1, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            PermissionUtils.requestPermissions(this, 1, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, null);
         }
 
     }
@@ -133,16 +131,6 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
 
     @Override
     public void onActivityResult(int i, Intent intent) {
-
-    }
-
-    @Override
-    public void onPermissionFailed(int i, List list) {
-
-    }
-
-    @Override
-    public void onPermissionSucceed(int i, List list) {
 
     }
 
@@ -157,7 +145,17 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
                 if (ContextCompat.checkSelfPermission(RegisterActivity.this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
                     mPersenter.register(mEditUserAccount.getText().toString(), mEditUserPassword.getText().toString());
                 } else {
-                    PermissionSteward.requestPermission(RegisterActivity.this, 1, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    PermissionUtils.requestPermissions(this, 1, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionUtils.OnPermissionListener() {
+                        @Override
+                        public void onPermissionGranted() {
+                            mPersenter.register(mEditUserAccount.getText().toString(), mEditUserPassword.getText().toString());
+                        }
+
+                        @Override
+                        public void onPermissionDenied(String[] deniedPermissions) {
+
+                        }
+                    });
                 }
                 break;
         }

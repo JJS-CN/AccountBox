@@ -9,36 +9,41 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.account.box.APP;
 import com.account.box.R;
 import com.account.box.bean.AccountBean;
-import com.account.box.bean.AccountBeanDao;
 import com.account.box.bean.GroupBean;
 import com.account.box.bean.GroupBeanDao;
-import com.account.box.bean.UserBeanDao;
 import com.account.box.utils.AddDialog;
-import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jjs.base.JJsActivity;
+import com.jjs.base.utils.recyclerview.QuickAdapter;
+import com.jjs.base.utils.recyclerview.QuickHolder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static com.account.box.R.id.rv;
 
 public class MainActivity extends JJsActivity {
 
 
     @BindView(R.id.tool)
     Toolbar mTool;
-    @BindView(R.id.rv)
+    @BindView(rv)
     RecyclerView mRv;
     @BindView(R.id.swipe)
     SwipeRefreshLayout mSwipe;
@@ -52,13 +57,17 @@ public class MainActivity extends JJsActivity {
     @BindView(R.id.iv_float)
     FloatingActionButton mIvFloat;
 
+    int[] TitleColors = new int[]{
+            Color.parseColor("#FFF5EE"), Color.parseColor("#FFDAB9"),
+            Color.parseColor("#FFBBFF"), Color.parseColor("#BFEFFF"),
+            Color.parseColor("#B9D3EE"), Color.parseColor("#9BCD9B"),
+            Color.parseColor("#98FB98"), Color.parseColor("#C0FF3E"),
+            Color.parseColor("#9AFF9A"), Color.parseColor("#9F79EE")};
     //数据库操作层
     GroupBeanDao mGroupBeanDao;
-    AccountBeanDao mAccountDao;
-    UserBeanDao mUserBeanDao;
     //账户数据
-    List<GroupBean> mGroupBeanList;
-
+    List<GroupBean> mGroupBeanList = new ArrayList<>();
+    QuickAdapter mQuickAdapter;
 
     public static void open(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -69,8 +78,19 @@ public class MainActivity extends JJsActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mUnbinder=ButterKnife.bind(this);
-        hasExitDouble();
+        //执行各view的初始化操作
+        initTitleAndRefresh();
+        initRecyclerShow();
+
+        //获取数据库操作层
+        mGroupBeanDao = APP.getInstance().getDaoSession().getGroupBeanDao();
+        getAccountList();//执行查询操作
+
+        hasExitDouble();//需要连点退出
+
+    }
+
+    private void initTitleAndRefresh() {
         //设置toolbar
         mTool.setSubtitle("账号列表");
         setSupportActionBar(mTool);
@@ -82,48 +102,94 @@ public class MainActivity extends JJsActivity {
                 mDrawer.openDrawer(Gravity.LEFT);
             }
         });
-        LogUtils.e("查询开始");
         //设置刷新控件
         mSwipe.setColorSchemeColors(Color.parseColor("#FF4081"), Color.parseColor("#303F9F"), Color.parseColor("#33FFFF"));
         mSwipe.setRefreshing(true);
-        //获取数据库操作层
-        mGroupBeanDao = APP.getInstance().getDaoSession().getGroupBeanDao();
-        mAccountDao = APP.getInstance().getDaoSession().getAccountBeanDao();
-        //查询所有
-        mGroupBeanList = mGroupBeanDao.queryBuilder()
-                .where(GroupBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId()))
-                .build().list();
-        //查询完毕关闭加载动画
-        mSwipe.setRefreshing(false);
-        //查看数据
-        LogUtils.e(mGroupBeanList.toString());
-        List<AccountBean> lists = mAccountDao.queryBuilder()
-                .where(AccountBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId()))
-                .build().list();
-        LogUtils.e(lists.toString());
-        mUserBeanDao = APP.getInstance().getDaoSession().getUserBeanDao();
-        getAccountList();
+        mSwipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getAccountList();
+            }
+        });
+    }
+
+    private void initRecyclerShow() {
+        //列表展示控件
+        mQuickAdapter = new QuickAdapter<GroupBean>(R.layout.recycler_group_show, mGroupBeanList) {
+            @Override
+            public void _convert(QuickHolder quickHolder, final GroupBean groupBean) {
+                TextView groupName = quickHolder.getView(R.id.tv_group_name);
+                final RecyclerView rv = quickHolder.getView(R.id.rv_account_list);
+                groupName.setText(groupBean.getName());
+                groupName.setBackgroundColor(TitleColors[quickHolder.getAdapterPosition() % 10]);
+                groupName.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rv.setVisibility(rv.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+                    }
+                });
+                //需要重置更新后的数据，否则查看不了
+                groupBean.resetAccountList();
+                rv.setLayoutManager(new LinearLayoutManager(mContext));
+                QuickAdapter adapter = new QuickAdapter<AccountBean>(R.layout.recycler_account_details, groupBean.getAccountList()) {
+                    @Override
+                    public void _convert(QuickHolder quickHolder, AccountBean accountBean) {
+                        TextView accName = quickHolder.getView(R.id.tv_account_name);
+                        TextView accPwd = quickHolder.getView(R.id.tv_account_password);
+                        TextView accMsg = quickHolder.getView(R.id.tv_account_message);
+                        accName.setText("账号：" + accountBean.getAccountName());
+                        accPwd.setText("密码：" + accountBean.getAccountPwd());
+                        accMsg.setText("说明：" + accountBean.getAccountMsg());
+
+                        ImageView update = quickHolder.getView(R.id.iv_update);
+                        ImageView delete = quickHolder.getView(R.id.iv_delete);
+                        update.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                //更新修改数据
+                            }
+                        });
+                        delete.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                //删除数据
+                            }
+                        });
+
+                    }
+                };
+                adapter.setOnItemClickListener(new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                        ToastUtils.showShort(groupBean.getAccountList().get(position).getAccountName());
+                    }
+                });
+                rv.setAdapter(adapter);
+            }
+        };
+        mQuickAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                ToastUtils.showShort("触发点击：" + position);
+            }
+        });
+        mRv.setLayoutManager(new LinearLayoutManager(this));
+        mRv.setAdapter(mQuickAdapter);
     }
 
     private void getAccountList() {
-        APP.getInstance().mUserBean = mUserBeanDao.queryBuilder().where(UserBeanDao.Properties.Id.eq(APP.getInstance().mUserBean.getId())).unique();
-        LogUtils.e("base===============" + APP.getInstance().mUserBean.getBaseAccountList().toString());
-        LogUtils.e("group================" + APP.getInstance().mUserBean.getGroupList().toString());
+
+        List<GroupBean> lists = APP.getInstance().getDaoSession().getGroupBeanDao().queryBuilder()
+                .where(GroupBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId()))
+                .build().list();
         mSwipe.setRefreshing(false);
+        mGroupBeanList.clear();
+        mGroupBeanList.addAll(lists);
+        mQuickAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onActivityResult(int i, Intent intent) {
-
-    }
-
-    @Override
-    public void onPermissionFailed(int i, List list) {
-
-    }
-
-    @Override
-    public void onPermissionSucceed(int i, List list) {
 
     }
 
@@ -142,6 +208,7 @@ public class MainActivity extends JJsActivity {
                                 } else if (type == 1) {
                                     ToastUtils.showShort("分组已添加");
                                 }
+                                mSwipe.setRefreshing(true);
                                 getAccountList();
                             }
                         })

@@ -4,15 +4,10 @@ import android.text.TextUtils;
 
 import com.account.box.APP;
 import com.account.box.activity.view.LoginView;
-import com.account.box.bean.RxResult;
 import com.account.box.bean.UserBean;
 import com.account.box.bean.UserBeanDao;
-import com.account.box.http.ApiService;
-import com.account.box.http.RxSub;
 import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.jjs.base.http.RetrofitUtils;
-import com.jjs.base.http.RxSchedulers;
 import com.jjs.base.mvp.BasePersenter;
 
 import java.util.List;
@@ -31,16 +26,6 @@ public class LoginPersenter extends BasePersenter<LoginView> {
     }
 
     public void sendSms(String phone) {
-        RetrofitUtils.getInstance()
-                .create(ApiService.Login.class)
-                .sendSMS(phone)
-                .compose(RxSchedulers.getInstance(mView.bindToLifecycle()).<RxResult<String>>io_main())
-                .subscribe(new RxSub<String>() {
-                    @Override
-                    public void _onSuccess(String body) {
-                        mView.sendSmsSuccess(body);
-                    }
-                });
     }
 
     public void login(String phone, String pwd, String sms) {

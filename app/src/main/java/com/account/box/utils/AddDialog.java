@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
@@ -41,6 +42,8 @@ import java.util.List;
  */
 
 public class AddDialog extends Dialog {
+
+    Context mContext;
     //数据库操作层
     GroupBeanDao mGroupBeanDao;
     AccountBeanDao mAccountDao;
@@ -85,12 +88,12 @@ public class AddDialog extends Dialog {
 
 
     private void init(final Context mContext) {
+        this.mContext = mContext;
         //数据库操作层
         mGroupBeanDao = APP.getInstance().getDaoSession().getGroupBeanDao();
         mAccountDao = APP.getInstance().getDaoSession().getAccountBeanDao();
         //查询数据
         mGroupBeanList = new ArrayList<>();
-        mGroupBeanList.add(new GroupBean(APP.getInstance().mUserBean.getId(), APP.getInstance().mUserBean.getId(), "根目录"));
         List<GroupBean> lists = mGroupBeanDao.queryBuilder().where(GroupBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId())).build().list();
         mGroupBeanList.addAll(lists);
         LogUtils.e(mGroupBeanList.toString());
@@ -113,6 +116,12 @@ public class AddDialog extends Dialog {
         mEditGroupName = (TextInputEditText) view.findViewById(R.id.edit_group_name);
         mCheckAccount = (CardView) view.findViewById(R.id.card_check_account);
         mCheckGroup = (CardView) view.findViewById(R.id.card_check_group);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideInputMethod();
+            }
+        });
         //设置list
         mRvGroupList.setLayoutManager(new LinearLayoutManager(mContext));
         QuickAdapter quickAdapter = new QuickAdapter<GroupBean>(R.layout.recycler_group_list, mGroupBeanList) {
@@ -127,6 +136,7 @@ public class AddDialog extends Dialog {
                 mRvGroupList.setVisibility(View.GONE);
                 mTvOpenGroup.setText(mGroupBeanList.get(position).getName());
                 checkListBean = mGroupBeanList.get(position);
+                hideInputMethod();
             }
         });
         mRvGroupList.setAdapter(quickAdapter);
@@ -137,9 +147,11 @@ public class AddDialog extends Dialog {
                 AddDialog.this.dismiss();
             }
         });
+
         mRadioType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                hideInputMethod();
                 if (checkedId == group.getChildAt(0).getId()) {
                     mLlAccount.setVisibility(View.VISIBLE);
                     mLlGroup.setVisibility(View.GONE);
@@ -150,18 +162,26 @@ public class AddDialog extends Dialog {
 
             }
         });
-        mRadioType.check(mRadioType.getChildAt(0).getId());
+        if (mGroupBeanList.size() > 0) {
+            mRadioType.getChildAt(0).performClick();
+        } else {
+            mRadioType.getChildAt(1).performClick();
+            mRadioType.getChildAt(0).setClickable(false);
+        }
+
         mCheckAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideInputMethod();
                 String accountTitle = mEditAccountTitle.getText().toString().trim();
                 String accountName = mEditAccountAccount.getText().toString().trim();
                 String accountPwd = mEditAccountPassword.getText().toString().trim();
                 String accountMsg = mEditAccountMessage.getText().toString().trim();
-                if (TextUtils.isEmpty(accountTitle)) {
+             /*   if (TextUtils.isEmpty(accountTitle)) {
                     ToastUtils.showShort("标题不能为空");
                     return;
-                } else if (TextUtils.isEmpty(accountName)) {
+                } else */
+                    if (TextUtils.isEmpty(accountName)) {
                     ToastUtils.showShort("用户名不能为空");
                     return;
                 } else if (TextUtils.isEmpty(accountPwd)) {
@@ -235,6 +255,7 @@ public class AddDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 mRvGroupList.setVisibility(mRvGroupList.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+                hideInputMethod();
             }
         });
         this.setContentView(view);
@@ -247,6 +268,13 @@ public class AddDialog extends Dialog {
         lp.width = mContext.getResources().getDisplayMetrics().widthPixels * 4 / 5; // 设置dialog宽度为屏幕的4/5
         getWindow().setAttributes(lp);
 
+    }
+
+    public void hideInputMethod() {
+        if (getCurrentFocus() != null && getCurrentFocus().getWindowToken() != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     public AddDialog setOnChangeListener(OnChangeListner changeListener) {

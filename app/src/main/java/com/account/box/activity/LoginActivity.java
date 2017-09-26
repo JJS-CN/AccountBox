@@ -19,15 +19,14 @@ import com.account.box.R;
 import com.account.box.Store;
 import com.account.box.activity.persenter.LoginPersenter;
 import com.account.box.activity.view.LoginView;
+import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.jjs.base.JJsActivity;
-import com.jjs.base.Permission.PermissionSteward;
 import com.jjs.base.utils.GlideUtils;
 
 import java.io.File;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -154,7 +153,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
         if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             //没有这个权限
             //进行sd卡读写权限的申请
-            PermissionSteward.requestPermission(LoginActivity.this, 1, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            PermissionUtils.requestPermissions(this, 1, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, null);
         }
 
     }
@@ -166,16 +165,6 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
         if (i == Store.Login.openRegisterCode) {
             finish();
         }
-    }
-
-    @Override
-    public void onPermissionFailed(int i, List list) {
-
-    }
-
-    @Override
-    public void onPermissionSucceed(int i, List list) {
-
     }
 
 
