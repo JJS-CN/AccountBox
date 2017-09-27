@@ -1,12 +1,12 @@
 package com.account.box.bean;
 
-import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 
 import java.util.List;
+import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.DaoException;
 
 /**
  * 说明：
@@ -18,70 +18,53 @@ public class GroupBean {
     private Long id;
 
     private Long userId;
+    private int passwordType;
     //private Long parentId;//父级id，先通过userId且无父级查询第一级，遍历所有结果查询第二级，进行循环；再通过查询出来的list层级，去遍历账号表
     private String name;
     @ToMany(referencedJoinProperty = "accountListId")
     private List<AccountBean> accountList;
 
-    /**
-     * Used to resolve relations
-     */
+    /** Used to resolve relations */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
 
     /** Used for active entity operations. */
     @Generated(hash = 1765898500)
     private transient GroupBeanDao myDao;
-
-
-    @Generated(hash = 1468337048)
-    public GroupBean(Long id, Long userId, String name) {
+    @Generated(hash = 459168871)
+    public GroupBean(Long id, Long userId, int passwordType, String name) {
         this.id = id;
         this.userId = userId;
+        this.passwordType = passwordType;
         this.name = name;
     }
-
     @Generated(hash = 405578774)
     public GroupBean() {
     }
-
     public Long getId() {
         return this.id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public Long getUserId() {
         return this.userId;
     }
-
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-
-
+    public int getPasswordType() {
+        return this.passwordType;
+    }
+    public void setPasswordType(int passwordType) {
+        this.passwordType = passwordType;
+    }
     public String getName() {
         return this.name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
-    @Override
-    public String toString() {
-        return "GroupBean{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", name='" + name + '\'' +
-                ", accountList=" + getAccountList() +
-                ", daoSession=" + daoSession +
-                ", myDao=" + myDao +
-                '}';
-    }
-
     /**
      * To-many relationship, resolved on first access (and after reset).
      * Changes to to-many relations are not persisted, make changes to the target entity.
@@ -103,13 +86,11 @@ public class GroupBean {
         }
         return accountList;
     }
-
     /** Resets a to-many relationship, making the next get call to query for a fresh result. */
     @Generated(hash = 1511731010)
     public synchronized void resetAccountList() {
         accountList = null;
     }
-
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
      * Entity must attached to an entity context.
@@ -121,7 +102,6 @@ public class GroupBean {
         }
         myDao.delete(this);
     }
-
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
      * Entity must attached to an entity context.
@@ -133,7 +113,6 @@ public class GroupBean {
         }
         myDao.refresh(this);
     }
-
     /**
      * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
      * Entity must attached to an entity context.
@@ -145,14 +124,12 @@ public class GroupBean {
         }
         myDao.update(this);
     }
-
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1477281962)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
         myDao = daoSession != null ? daoSession.getGroupBeanDao() : null;
     }
-
 
 
 }

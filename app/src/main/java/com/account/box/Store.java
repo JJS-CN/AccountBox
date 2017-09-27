@@ -14,4 +14,10 @@ public class Store extends JJsStore {
         public static int openRegisterCode = 1;
         public static int openResetCode = 2;
     }
+
+    public static class Password {
+        public static final int Private = 0;
+        public static final int Protected = 1;
+        public static final int Public = 2;
+    }
 }

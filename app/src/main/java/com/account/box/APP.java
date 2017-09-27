@@ -18,6 +18,8 @@ import java.io.File;
 public class APP extends MultiDexAPP {
     private static APP mApplication;
     public UserBean mUserBean;//用户数据
+    public String passwordSuper = "jjs";//超级密码
+    public int mLoginType = Store.Password.Public;//登录类型
 
     @Override
     public void onCreate() {

@@ -15,14 +15,15 @@ public class AccountBean {
     private Long userId;
 
     private String accoutTitle;//标题
-    private String accountName;
-    private String accountPwd;
+    private byte[] accountName;
+    private byte[]  accountPwd;
     private String accountMsg;
     private Long accountListId;//所属层级id
-
-    @Generated(hash = 368640149)
-    public AccountBean(Long id, Long userId, String accoutTitle, String accountName,
-            String accountPwd, String accountMsg, Long accountListId) {
+    private int passwordType;//所属级别
+    @Generated(hash = 1027615441)
+    public AccountBean(Long id, Long userId, String accoutTitle, byte[] accountName,
+            byte[] accountPwd, String accountMsg, Long accountListId,
+            int passwordType) {
         this.id = id;
         this.userId = userId;
         this.accoutTitle = accoutTitle;
@@ -30,6 +31,7 @@ public class AccountBean {
         this.accountPwd = accountPwd;
         this.accountMsg = accountMsg;
         this.accountListId = accountListId;
+        this.passwordType = passwordType;
     }
     @Generated(hash = 1267506976)
     public AccountBean() {
@@ -46,16 +48,22 @@ public class AccountBean {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-    public String getAccountName() {
+    public String getAccoutTitle() {
+        return this.accoutTitle;
+    }
+    public void setAccoutTitle(String accoutTitle) {
+        this.accoutTitle = accoutTitle;
+    }
+    public byte[] getAccountName() {
         return this.accountName;
     }
-    public void setAccountName(String accountName) {
+    public void setAccountName(byte[] accountName) {
         this.accountName = accountName;
     }
-    public String getAccountPwd() {
+    public byte[] getAccountPwd() {
         return this.accountPwd;
     }
-    public void setAccountPwd(String accountPwd) {
+    public void setAccountPwd(byte[] accountPwd) {
         this.accountPwd = accountPwd;
     }
     public String getAccountMsg() {
@@ -70,23 +78,16 @@ public class AccountBean {
     public void setAccountListId(Long accountListId) {
         this.accountListId = accountListId;
     }
-    public String getAccoutTitle() {
-        return this.accoutTitle;
+    public int getPasswordType() {
+        return this.passwordType;
     }
-    public void setAccoutTitle(String accoutTitle) {
-        this.accoutTitle = accoutTitle;
+    public void setPasswordType(int passwordType) {
+        this.passwordType = passwordType;
     }
 
-    @Override
-    public String toString() {
-        return "AccountBean{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", accoutTitle='" + accoutTitle + '\'' +
-                ", accountName='" + accountName + '\'' +
-                ", accountPwd='" + accountPwd + '\'' +
-                ", accountMsg='" + accountMsg + '\'' +
-                ", accountListId=" + accountListId +
-                '}';
-    }
+
+
+
+   
+
 }

@@ -52,9 +52,11 @@ public class AddDialog extends Dialog {
     //状态改变监听，通知主界面需要更新数据
     OnChangeListner mChangeListner;
     GroupBean checkListBean;//选中分组
+    int checkTypePwd;//选中级别
 
     ImageView mIvClose;
     RadioGroup mRadioType;
+    RadioGroup mRadioTypePwd;//账号等级
 
     TextInputEditText mEditAccountTitle;
     TextInputEditText mEditAccountMessage;
@@ -101,6 +103,7 @@ public class AddDialog extends Dialog {
         View view = View.inflate(mContext, R.layout.dialog_account_add, null);
         mIvClose = (ImageView) view.findViewById(R.id.iv_close);
         mRadioType = (RadioGroup) view.findViewById(R.id.radio_type);
+        mRadioTypePwd = (RadioGroup) view.findViewById(R.id.radio_type_pwd);
         mLlAccount = (LinearLayout) view.findViewById(R.id.ll_account);
         mLlGroup = (LinearLayout) view.findViewById(R.id.ll_group);
 
@@ -169,6 +172,20 @@ public class AddDialog extends Dialog {
             mRadioType.getChildAt(0).setClickable(false);
         }
 
+        mRadioTypePwd.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                hideInputMethod();
+                for (int i = 0; i < group.getChildCount(); i++) {
+                    if (group.getChildAt(i).getId() == checkedId) {
+                        checkTypePwd = i;
+                        break;
+                    }
+                }
+            }
+        });
+        mRadioTypePwd.getChildAt(0).performClick();
+
         mCheckAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,7 +198,7 @@ public class AddDialog extends Dialog {
                     ToastUtils.showShort("标题不能为空");
                     return;
                 } else */
-                    if (TextUtils.isEmpty(accountName)) {
+                if (TextUtils.isEmpty(accountName)) {
                     ToastUtils.showShort("用户名不能为空");
                     return;
                 } else if (TextUtils.isEmpty(accountPwd)) {
@@ -193,7 +210,7 @@ public class AddDialog extends Dialog {
                 }
                 long count = mAccountDao.queryBuilder()
                         .where(AccountBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId())
-                                , AccountBeanDao.Properties.AccoutTitle.eq(accountTitle)
+                                //, AccountBeanDao.Properties.AccoutTitle.eq(accountTitle)
                                 , AccountBeanDao.Properties.AccountName.eq(accountName)
                                 , AccountBeanDao.Properties.AccountPwd.eq(accountPwd))
                         .count();
@@ -205,9 +222,12 @@ public class AddDialog extends Dialog {
                 AccountBean accountBean = new AccountBean();
                 accountBean.setUserId(APP.getInstance().mUserBean.getId());
                 accountBean.setAccoutTitle(accountTitle);
-                accountBean.setAccountName(accountName);
-                accountBean.setAccountPwd(accountPwd);
+                // accountBean.setAccountName(accountName);
+                // accountBean.setAccountPwd(accountPwd);
+                accountBean.setAccountName(RsaUtils.encryptByPrivateKeyForSpilt(accountName.getBytes(), APP.getInstance().mUserBean.getRsaPrivateKey()));
+                accountBean.setAccountPwd(RsaUtils.encryptByPrivateKeyForSpilt(accountPwd.getBytes(), APP.getInstance().mUserBean.getRsaPrivateKey()));
                 accountBean.setAccountMsg(accountMsg);
+                accountBean.setPasswordType(checkTypePwd);
                 accountBean.setAccountListId(checkListBean.getId());
                 long id = mAccountDao.insert(accountBean);
                 if (id == 0) {
@@ -241,6 +261,7 @@ public class AddDialog extends Dialog {
                 //先判断是否有重复的，再进行添加操作！！！
                 GroupBean groupBean = new GroupBean();
                 groupBean.setName(groupName);
+                groupBean.setPasswordType(checkTypePwd);
                 groupBean.setUserId(APP.getInstance().mUserBean.getId());
                 long id = mGroupBeanDao.insert(groupBean);
                 if (id == 0) {

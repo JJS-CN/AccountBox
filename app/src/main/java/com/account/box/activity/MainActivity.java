@@ -24,6 +24,7 @@ import com.account.box.bean.AccountBean;
 import com.account.box.bean.GroupBean;
 import com.account.box.bean.GroupBeanDao;
 import com.account.box.utils.AddDialog;
+import com.account.box.utils.RsaUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jjs.base.JJsActivity;
@@ -120,7 +121,12 @@ public class MainActivity extends JJsActivity {
             public void _convert(QuickHolder quickHolder, final GroupBean groupBean) {
                 TextView groupName = quickHolder.getView(R.id.tv_group_name);
                 final RecyclerView rv = quickHolder.getView(R.id.rv_account_list);
-                groupName.setText(groupBean.getName());
+                if (APP.getInstance().mLoginType > groupBean.getPasswordType()) {
+                    groupName.setText("无权限");
+                } else {
+                    groupName.setText(groupBean.getName());
+                }
+
                 groupName.setBackgroundColor(TitleColors[quickHolder.getAdapterPosition() % 10]);
                 groupName.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -137,9 +143,16 @@ public class MainActivity extends JJsActivity {
                         TextView accName = quickHolder.getView(R.id.tv_account_name);
                         TextView accPwd = quickHolder.getView(R.id.tv_account_password);
                         TextView accMsg = quickHolder.getView(R.id.tv_account_message);
-                        accName.setText("账号：" + accountBean.getAccountName());
-                        accPwd.setText("密码：" + accountBean.getAccountPwd());
-                        accMsg.setText("说明：" + accountBean.getAccountMsg());
+                        //登录账号数值大于组等级 或 账号等级时 不显示
+                        if (APP.getInstance().mLoginType > groupBean.getPasswordType() || APP.getInstance().mLoginType > accountBean.getPasswordType()) {
+                            accName.setText("账号：" + "无权限");
+                            accPwd.setText("密码：" + "无权限");
+                            accMsg.setText("说明：" + "无权限");
+                        } else {
+                            accName.setText("账号：" + new String(RsaUtils.decryptByPublicKeyForSpilt(accountBean.getAccountName(), APP.getInstance().mUserBean.getRsaPublicKey())));
+                            accPwd.setText("密码：" + new String(RsaUtils.decryptByPublicKeyForSpilt(accountBean.getAccountPwd(), APP.getInstance().mUserBean.getRsaPublicKey())));
+                            accMsg.setText("说明：" + accountBean.getAccountMsg());
+                        }
 
                         ImageView update = quickHolder.getView(R.id.iv_update);
                         ImageView delete = quickHolder.getView(R.id.iv_delete);
@@ -161,7 +174,7 @@ public class MainActivity extends JJsActivity {
                 adapter.setOnItemClickListener(new OnItemClickListener() {
                     @Override
                     public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                        ToastUtils.showShort(groupBean.getAccountList().get(position).getAccountName());
+                        // ToastUtils.showShort(groupBean.getAccountList().get(position).getAccountName());
                     }
                 });
                 rv.setAdapter(adapter);

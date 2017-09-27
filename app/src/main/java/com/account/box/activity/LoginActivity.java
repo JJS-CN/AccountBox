@@ -29,7 +29,6 @@ import com.jjs.base.utils.GlideUtils;
 import java.io.File;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
@@ -58,6 +57,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
     @BindView(R.id.iv_clear)
     ImageView ivClear;
 
+
     public static void open(Context context) {
         Intent intent = new Intent(context, LoginActivity.class);
         context.startActivity(intent);
@@ -67,7 +67,6 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mUnbinder = ButterKnife.bind(this);
         mPersenter = new LoginPersenter(this);
         if (APP.isDebug) {
             mPersenter.login("jjs", "123456", "");
