@@ -1,6 +1,7 @@
 package com.account.box.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -21,12 +23,12 @@ import android.widget.TextView;
 import com.account.box.APP;
 import com.account.box.R;
 import com.account.box.bean.AccountBean;
+import com.account.box.bean.AccountBeanDao;
 import com.account.box.bean.GroupBean;
 import com.account.box.bean.GroupBeanDao;
 import com.account.box.utils.AddDialog;
 import com.account.box.utils.RsaUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jjs.base.JJsActivity;
 import com.jjs.base.utils.recyclerview.QuickAdapter;
 import com.jjs.base.utils.recyclerview.QuickHolder;
@@ -66,6 +68,7 @@ public class MainActivity extends JJsActivity {
             Color.parseColor("#9AFF9A"), Color.parseColor("#9F79EE")};
     //数据库操作层
     GroupBeanDao mGroupBeanDao;
+    AccountBeanDao mAccountBeanDao;
     //账户数据
     List<GroupBean> mGroupBeanList = new ArrayList<>();
     QuickAdapter mQuickAdapter;
@@ -85,6 +88,7 @@ public class MainActivity extends JJsActivity {
 
         //获取数据库操作层
         mGroupBeanDao = APP.getInstance().getDaoSession().getGroupBeanDao();
+        mAccountBeanDao = APP.getInstance().getDaoSession().getAccountBeanDao();
         getAccountList();//执行查询操作
 
         hasExitDouble();//需要连点退出
@@ -112,6 +116,9 @@ public class MainActivity extends JJsActivity {
                 getAccountList();
             }
         });
+        if (APP.getInstance().mLoginType!=0){
+            mIvFloat.hide();
+        }
     }
 
     private void initRecyclerShow() {
@@ -139,7 +146,7 @@ public class MainActivity extends JJsActivity {
                 rv.setLayoutManager(new LinearLayoutManager(mContext));
                 QuickAdapter adapter = new QuickAdapter<AccountBean>(R.layout.recycler_account_details, groupBean.getAccountList()) {
                     @Override
-                    public void _convert(QuickHolder quickHolder, AccountBean accountBean) {
+                    public void _convert(QuickHolder quickHolder, final AccountBean accountBean) {
                         TextView accName = quickHolder.getView(R.id.tv_account_name);
                         TextView accPwd = quickHolder.getView(R.id.tv_account_password);
                         TextView accMsg = quickHolder.getView(R.id.tv_account_message);
@@ -166,26 +173,26 @@ public class MainActivity extends JJsActivity {
                             @Override
                             public void onClick(View v) {
                                 //删除数据
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setTitle("删除账号")
+                                        .setMessage("账号删除后将不可恢复！")
+                                        .setPositiveButton("确定删除", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                mAccountBeanDao.delete(accountBean);
+                                                mQuickAdapter.notifyDataSetChanged();
+                                            }
+                                        })
+                                        .setNegativeButton("取消", null)
+                                        .create().show();
                             }
                         });
 
                     }
                 };
-                adapter.setOnItemClickListener(new OnItemClickListener() {
-                    @Override
-                    public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                        // ToastUtils.showShort(groupBean.getAccountList().get(position).getAccountName());
-                    }
-                });
                 rv.setAdapter(adapter);
             }
         };
-        mQuickAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                ToastUtils.showShort("触发点击：" + position);
-            }
-        });
         mRv.setLayoutManager(new LinearLayoutManager(this));
         mRv.setAdapter(mQuickAdapter);
     }

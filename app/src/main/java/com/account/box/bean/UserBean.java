@@ -24,24 +24,29 @@ public class UserBean {
     private byte[] rsaPrivateKey;//私钥
     private String IMEIs;//多设备绑定字段
     private boolean isSham;//是否开启入口伪装
+    private int shamType;//伪装的类型
     private int passwordErrorNum;//密码错误次数
 
 
     @ToMany(referencedJoinProperty = "userId")
     private List<GroupBean> groupList;//组列表
     //二级密码的表。用来存放多种等级密码的；
-    /** Used to resolve relations */
+    /**
+     * Used to resolve relations
+     */
     @Generated(hash = 2040040024)
     private transient DaoSession daoSession;
-    /** Used for active entity operations. */
+    /**
+     * Used for active entity operations.
+     */
     @Generated(hash = 83707551)
     private transient UserBeanDao myDao;
 
 
-    @Generated(hash = 2060066771)
+    @Generated(hash = 1172160830)
     public UserBean(Long id, String username, String passwordPrivate,
             String passwordProtected, String passwordPublic, byte[] rsaPublicKey,
-            byte[] rsaPrivateKey, String IMEIs, boolean isSham,
+            byte[] rsaPrivateKey, String IMEIs, boolean isSham, int shamType,
             int passwordErrorNum) {
         this.id = id;
         this.username = username;
@@ -52,6 +57,7 @@ public class UserBean {
         this.rsaPrivateKey = rsaPrivateKey;
         this.IMEIs = IMEIs;
         this.isSham = isSham;
+        this.shamType = shamType;
         this.passwordErrorNum = passwordErrorNum;
     }
 
@@ -184,7 +190,9 @@ public class UserBean {
     }
 
 
-    /** Resets a to-many relationship, making the next get call to query for a fresh result. */
+    /**
+     * Resets a to-many relationship, making the next get call to query for a fresh result.
+     */
     @Generated(hash = 114754500)
     public synchronized void resetGroupList() {
         groupList = null;
@@ -227,6 +235,16 @@ public class UserBean {
             throw new DaoException("Entity is detached from DAO context");
         }
         myDao.update(this);
+    }
+
+
+    public int getShamType() {
+        return this.shamType;
+    }
+
+
+    public void setShamType(int shamType) {
+        this.shamType = shamType;
     }
 
 
