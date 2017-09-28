@@ -54,6 +54,9 @@ public class AddDialog extends Dialog {
     GroupBean checkListBean;//选中分组
     int checkTypePwd;//选中级别
 
+    TextView mTvTopTitle;//标题
+    LinearLayout mLlAccountType;//账户类型
+
     ImageView mIvClose;
     RadioGroup mRadioType;
     RadioGroup mRadioTypePwd;//账号等级
@@ -73,23 +76,23 @@ public class AddDialog extends Dialog {
     CardView mCheckAccount;
     CardView mCheckGroup;
 
-    public AddDialog(@NonNull Context context) {
+    public AddDialog(@NonNull Context context, AccountBean accountBean) {
         super(context, R.style.MyDialog);
-        init(context);
+        init(context, accountBean);
     }
 
-    public AddDialog(@NonNull Context context, @StyleRes int themeResId) {
+    public AddDialog(@NonNull Context context, AccountBean accountBean, @StyleRes int themeResId) {
         super(context, themeResId);
-        init(context);
+        init(context, accountBean);
     }
 
-    protected AddDialog(@NonNull Context context, boolean cancelable, @Nullable OnCancelListener cancelListener) {
+    protected AddDialog(@NonNull Context context, AccountBean accountBean, boolean cancelable, @Nullable OnCancelListener cancelListener) {
         super(context, cancelable, cancelListener);
-        init(context);
+        init(context, accountBean);
     }
 
 
-    private void init(final Context mContext) {
+    private void init(final Context mContext, final AccountBean accountBean) {
         this.mContext = mContext;
         //数据库操作层
         mGroupBeanDao = APP.getInstance().getDaoSession().getGroupBeanDao();
@@ -101,6 +104,9 @@ public class AddDialog extends Dialog {
         LogUtils.e(mGroupBeanList.toString());
         //布局实例化
         View view = View.inflate(mContext, R.layout.dialog_account_add, null);
+        mTvTopTitle = (TextView) view.findViewById(R.id.tv_top_title);
+        mLlAccountType = (LinearLayout) view.findViewById(R.id.ll_account_type);
+
         mIvClose = (ImageView) view.findViewById(R.id.iv_close);
         mRadioType = (RadioGroup) view.findViewById(R.id.radio_type);
         mRadioTypePwd = (RadioGroup) view.findViewById(R.id.radio_type_pwd);
@@ -126,6 +132,8 @@ public class AddDialog extends Dialog {
             }
         });
         //设置list
+        mTvOpenGroup.setText(mGroupBeanList.get(0).getName());
+        checkListBean = mGroupBeanList.get(0);
         mRvGroupList.setLayoutManager(new LinearLayoutManager(mContext));
         QuickAdapter quickAdapter = new QuickAdapter<GroupBean>(R.layout.recycler_group_list, mGroupBeanList) {
             @Override
@@ -186,6 +194,25 @@ public class AddDialog extends Dialog {
         });
         mRadioTypePwd.getChildAt(0).performClick();
 
+        /**
+         * 对修改情况做处理
+         */
+        if (accountBean != null) {
+            mLlAccountType.setVisibility(View.GONE);
+            mRadioType.getChildAt(0).performClick();//默认选中账户
+            mRadioTypePwd.getChildAt(accountBean.getPasswordType()).performClick();//设置级别
+            mEditAccountAccount.setText(new String(RsaUtils.decryptByPublicKeyForSpilt(accountBean.getAccountName(), APP.getInstance().mUserBean.getRsaPublicKey())));//账户名
+            mEditAccountPassword.setText(new String(RsaUtils.decryptByPublicKeyForSpilt(accountBean.getAccountPwd(), APP.getInstance().mUserBean.getRsaPublicKey())));//账户密码
+            mEditAccountMessage.setText(accountBean.getAccountMsg());//账户内容
+
+            for (int i = 0; i < mGroupBeanList.size(); i++) {
+                if (mGroupBeanList.get(i).getId() == accountBean.getGroupId()) {
+                    mTvOpenGroup.setText(mGroupBeanList.get(i).getName());
+                    checkListBean = mGroupBeanList.get(i);
+                    break;
+                }
+            }
+        }
         mCheckAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -208,34 +235,51 @@ public class AddDialog extends Dialog {
                     ToastUtils.showShort("所属分组不能为空");
                     return;
                 }
-                long count = mAccountDao.queryBuilder()
-                        .where(AccountBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId())
-                                //, AccountBeanDao.Properties.AccoutTitle.eq(accountTitle)
-                                , AccountBeanDao.Properties.AccountName.eq(accountName)
-                                , AccountBeanDao.Properties.AccountPwd.eq(accountPwd))
-                        .count();
-                if (count != 0) {
-                    ToastUtils.showShort("数据重复，请重新输入");
-                    return;
-                }
-                //先判断是否有重复的，再进行添加操作！！！
-                AccountBean accountBean = new AccountBean();
-                accountBean.setUserId(APP.getInstance().mUserBean.getId());
-                accountBean.setAccoutTitle(accountTitle);
-                // accountBean.setAccountName(accountName);
-                // accountBean.setAccountPwd(accountPwd);
-                accountBean.setAccountName(RsaUtils.encryptByPrivateKeyForSpilt(accountName.getBytes(), APP.getInstance().mUserBean.getRsaPrivateKey()));
-                accountBean.setAccountPwd(RsaUtils.encryptByPrivateKeyForSpilt(accountPwd.getBytes(), APP.getInstance().mUserBean.getRsaPrivateKey()));
-                accountBean.setAccountMsg(accountMsg);
-                accountBean.setPasswordType(checkTypePwd);
-                accountBean.setAccountListId(checkListBean.getId());
-                long id = mAccountDao.insert(accountBean);
-                if (id == 0) {
-                    ToastUtils.showShort("新增失败");
-                } else if (mChangeListner != null) {
-                    mChangeListner.onChange(0);
+                if (accountBean == null) {
+                    long count = mAccountDao.queryBuilder()
+                            .where(AccountBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId())
+                                    //, AccountBeanDao.Properties.AccoutTitle.eq(accountTitle)
+                                    , AccountBeanDao.Properties.AccountName.eq(accountName)
+                                    , AccountBeanDao.Properties.AccountPwd.eq(accountPwd))
+                            .count();
+                    if (count != 0) {
+                        ToastUtils.showShort("数据重复，请重新输入");
+                        return;
+                    }
+                    //先判断是否有重复的，再进行添加操作！！！
+                    AccountBean accountBean = new AccountBean();
+                    accountBean.setUserId(APP.getInstance().mUserBean.getId());
+                    accountBean.setAccoutTitle(accountTitle);
+                    // accountBean.setAccountName(accountName);
+                    // accountBean.setAccountPwd(accountPwd);
+                    accountBean.setAccountName(RsaUtils.encryptByPrivateKeyForSpilt(accountName.getBytes(), APP.getInstance().mUserBean.getRsaPrivateKey()));
+                    accountBean.setAccountPwd(RsaUtils.encryptByPrivateKeyForSpilt(accountPwd.getBytes(), APP.getInstance().mUserBean.getRsaPrivateKey()));
+                    accountBean.setAccountMsg(accountMsg);
+                    accountBean.setPasswordType(checkTypePwd);
+                    accountBean.setGroupId(checkListBean.getId());
+                    long id = mAccountDao.insert(accountBean);
+                    if (id == 0) {
+                        ToastUtils.showShort("新增失败");
+                    } else {
+                        if (mChangeListner != null) {
+                            mChangeListner.onChange(0);
+                        }
+                        dismiss();
+                        ToastUtils.showShort("账号已添加");
+                    }
+
+                } else {
+                    accountBean.setAccountName(RsaUtils.encryptByPrivateKeyForSpilt(accountName.getBytes(), APP.getInstance().mUserBean.getRsaPrivateKey()));
+                    accountBean.setAccountPwd(RsaUtils.encryptByPrivateKeyForSpilt(accountPwd.getBytes(), APP.getInstance().mUserBean.getRsaPrivateKey()));
+                    accountBean.setAccountMsg(accountMsg);
+                    accountBean.setPasswordType(checkTypePwd);
+                    accountBean.setGroupId(checkListBean.getId());
+                    mAccountDao.update(accountBean);
+                    mChangeListner.onChange(1);
                     dismiss();
+                    //ToastUtils.showShort("账号已更新");
                 }
+
 
             }
         });
@@ -266,10 +310,14 @@ public class AddDialog extends Dialog {
                 long id = mGroupBeanDao.insert(groupBean);
                 if (id == 0) {
                     ToastUtils.showShort("新增失败");
-                } else if (mChangeListner != null) {
-                    mChangeListner.onChange(1);
+                } else {
+                    if (mChangeListner != null) {
+                        mChangeListner.onChange(2);
+                    }
                     dismiss();
+                    ToastUtils.showShort("分组已添加");
                 }
+
             }
         });
         mLlOpenGroup.setOnClickListener(new View.OnClickListener() {
@@ -291,7 +339,7 @@ public class AddDialog extends Dialog {
 
     }
 
-    public void hideInputMethod() {
+    private void hideInputMethod() {
         if (getCurrentFocus() != null && getCurrentFocus().getWindowToken() != null) {
             InputMethodManager inputMethodManager = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);

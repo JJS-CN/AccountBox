@@ -5,52 +5,56 @@
     android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+    android:fitsSystemWindows="true"
     >
     <!--主内容布局-->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/ll_main"
-            android:orientation="vertical"
+
+    <LinearLayout
+        android:id="@+id/ll_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include layout="@layout/toolbar"/>
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <include layout="@layout/toolbar"/>
-
-            <android.support.v4.widget.SwipeRefreshLayout
-                android:id="@+id/swipe"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+            </android.support.v7.widget.RecyclerView>
 
-                </android.support.v7.widget.RecyclerView>
-            </android.support.v4.widget.SwipeRefreshLayout>
+            <com.rodolfonavalon.shaperipplelibrary.ShapeRipple
+                android:id="@+id/ripple"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
-        </LinearLayout>
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/iv_float"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_margin="30dp"
+                android:src="@drawable/ic_index_attention"/>
+        </RelativeLayout>
+    </LinearLayout>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/iv_float"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_index_attention"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_margin="30dp"/>
-    </RelativeLayout>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/navigation_left"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="left"
-        android:fitsSystemWindows="true">
+        app:headerLayout="@layout/navigation_head"
+        app:insetForeground="@android:color/transparent"
+        app:menu="@menu/menu_navigation"
+        >
 
     </android.support.design.widget.NavigationView>
 

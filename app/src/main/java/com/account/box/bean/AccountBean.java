@@ -18,19 +18,18 @@ public class AccountBean {
     private byte[] accountName;
     private byte[]  accountPwd;
     private String accountMsg;
-    private Long accountListId;//所属层级id
+    private Long groupId;//所属层级id
     private int passwordType;//所属级别
-    @Generated(hash = 1027615441)
+    @Generated(hash = 1742324205)
     public AccountBean(Long id, Long userId, String accoutTitle, byte[] accountName,
-            byte[] accountPwd, String accountMsg, Long accountListId,
-            int passwordType) {
+            byte[] accountPwd, String accountMsg, Long groupId, int passwordType) {
         this.id = id;
         this.userId = userId;
         this.accoutTitle = accoutTitle;
         this.accountName = accountName;
         this.accountPwd = accountPwd;
         this.accountMsg = accountMsg;
-        this.accountListId = accountListId;
+        this.groupId = groupId;
         this.passwordType = passwordType;
     }
     @Generated(hash = 1267506976)
@@ -72,11 +71,11 @@ public class AccountBean {
     public void setAccountMsg(String accountMsg) {
         this.accountMsg = accountMsg;
     }
-    public Long getAccountListId() {
-        return this.accountListId;
+    public Long getGroupId() {
+        return this.groupId;
     }
-    public void setAccountListId(Long accountListId) {
-        this.accountListId = accountListId;
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
     public int getPasswordType() {
         return this.passwordType;
@@ -84,10 +83,5 @@ public class AccountBean {
     public void setPasswordType(int passwordType) {
         this.passwordType = passwordType;
     }
-
-
-
-
-   
 
 }

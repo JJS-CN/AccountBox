@@ -9,7 +9,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName "1.0bate"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -45,4 +45,6 @@ dependencies {
     compile 'org.greenrobot:greendao:3.2.2'
     compile 'net.zetetic:android-database-sqlcipher:3.5.6'
     compile 'com.android.support:cardview-v7:25.0.0'
+    //涟漪
+    compile 'com.rodolfonavalon:ShapeRippleLibrary:1.0.0'
 }

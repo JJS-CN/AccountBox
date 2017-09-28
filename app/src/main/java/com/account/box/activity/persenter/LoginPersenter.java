@@ -9,6 +9,7 @@ import com.account.box.bean.UserBean;
 import com.account.box.bean.UserBeanDao;
 import com.account.box.utils.RsaUtils;
 import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.mvp.BasePersenter;
 
@@ -69,10 +70,12 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         APP.getInstance().mUserBean = userBean;
         APP.getInstance().mLoginType = loginType;
         mView.userBeanSuccess();
+        SPUtils.getInstance().put("username", name);
+        SPUtils.getInstance().put("password", pwd);
     }
 
-    public void register(String phone, String pwd) {
-        if (TextUtils.isEmpty(phone)) {
+    public void register(String name, String pwd) {
+        if (TextUtils.isEmpty(name)) {
             ToastUtils.showShort("用户名不能为空!");
             return;
         }
@@ -81,14 +84,14 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             return;
         }
         long count = mUserBeanDao.queryBuilder()
-                .where(UserBeanDao.Properties.Username.eq(phone))
+                .where(UserBeanDao.Properties.Username.eq(name))
                 .count();
         if (count > 0) {
             ToastUtils.showShort("用户名已存在");
             return;
         }
         UserBean userBean = new UserBean();
-        userBean.setUsername(phone);
+        userBean.setUsername(name);
         userBean.setPasswordPrivate(EncryptUtils.encryptMD5ToString(pwd));
 
         KeyPair keyPair = RsaUtils.generateRSAKeyPair();
@@ -99,6 +102,8 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         APP.getInstance().mUserBean = userBean;
         APP.getInstance().mLoginType = Store.Password.Private;
         mView.userBeanSuccess();
+        SPUtils.getInstance().put("username", name);
+        SPUtils.getInstance().put("password", pwd);
     }
 
     public void resetPwd(String phone, String oldPwd, String newPwd, String newPwd2, int pwdType) {

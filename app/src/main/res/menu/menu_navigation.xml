@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_item_loginRecord"
+        android:icon="@drawable/ic_record"
+        android:title="Login Record"/>
+
+    <item
+        android:id="@+id/navigation_item_password"
+        android:icon="@drawable/ic_reset_password"
+        android:title="Reset Password"/>
+
+    <item
+        android:id="@+id/navigation_item_setting"
+        android:icon="@drawable/ic_setting"
+        android:title="Setting"/>
+
+    <item
+        android:id="@+id/navigation_item_loginOut"
+        android:icon="@drawable/ic_login_out"
+        android:title="Login Out"/>
+
+</menu>

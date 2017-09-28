@@ -1,12 +1,12 @@
 package com.account.box.bean;
 
+import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.ToMany;
 
 import java.util.List;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.DaoException;
 
 /**
  * 说明：
@@ -21,7 +21,7 @@ public class GroupBean {
     private int passwordType;
     //private Long parentId;//父级id，先通过userId且无父级查询第一级，遍历所有结果查询第二级，进行循环；再通过查询出来的list层级，去遍历账号表
     private String name;
-    @ToMany(referencedJoinProperty = "accountListId")
+    @ToMany(referencedJoinProperty = "groupId")
     private List<AccountBean> accountList;
 
     /** Used to resolve relations */

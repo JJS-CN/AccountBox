@@ -4,13 +4,66 @@
               android:layout_height="wrap_content"
               android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_group_name"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:padding="8dp"
-        android:text="标题Title"/>
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/tv_group_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/Null"
+            android:focusable="false"
+            android:hint="组名不能为空"
+            android:maxLines="1"
+            android:padding="8dp"
+            android:text="标题Title"
+            android:textSize="14sp"/>
+
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_group_delete"
+            android:visibility="invisible"/>
+
+        <ImageView
+            android:id="@+id/iv_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_group_more"
+            android:visibility="invisible"/>
+
+        <ImageView
+            android:id="@+id/iv_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/iv_delete"
+            android:padding="5dp"
+            android:src="@drawable/edit_save"
+            android:visibility="invisible"/>
+
+        <ImageView
+            android:id="@+id/iv_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/iv_save"
+            android:padding="5dp"
+            android:src="@drawable/edit_cancel"
+            android:visibility="invisible"/>
+
+    </RelativeLayout>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_account_list"

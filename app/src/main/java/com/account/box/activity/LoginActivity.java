@@ -10,6 +10,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,6 +21,7 @@ import com.account.box.Store;
 import com.account.box.activity.persenter.LoginPersenter;
 import com.account.box.activity.view.LoginView;
 import com.blankj.utilcode.util.PermissionUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -68,15 +70,15 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mPersenter = new LoginPersenter(this);
-        if (APP.isDebug) {
-            mPersenter.login("jjs", "123456", "");
+        if (!TextUtils.isEmpty(SPUtils.getInstance().getString("username")) && !TextUtils.isEmpty(SPUtils.getInstance().getString("password"))) {
+            mPersenter.login(SPUtils.getInstance().getString("username"), SPUtils.getInstance().getString("password"), "");
         }
 
         //设置toolbar
         mTool.setSubtitle("登陆");
         mTool.setLogo(R.drawable.ic_launcher);
         setSupportActionBar(mTool);
-
+        editUserAccount.setText(SPUtils.getInstance().getString("username"));
         //监听焦点变化改变图片颜色
         editUserAccount.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -195,7 +197,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
         //打开主界面
         MainActivity.open(this);
         //关闭本界面
-        ToastUtils.showShort("注册成功");
+        //ToastUtils.showShort("注册成功");
         setResult(Store.TAG.RESULT_OK);
         finish();
     }
