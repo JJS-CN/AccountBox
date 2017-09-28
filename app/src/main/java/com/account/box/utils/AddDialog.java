@@ -132,8 +132,10 @@ public class AddDialog extends Dialog {
             }
         });
         //设置list
-        mTvOpenGroup.setText(mGroupBeanList.get(0).getName());
-        checkListBean = mGroupBeanList.get(0);
+        if (mGroupBeanList.size() > 0) {
+            mTvOpenGroup.setText(mGroupBeanList.get(0).getName());
+            checkListBean = mGroupBeanList.get(0);
+        }
         mRvGroupList.setLayoutManager(new LinearLayoutManager(mContext));
         QuickAdapter quickAdapter = new QuickAdapter<GroupBean>(R.layout.recycler_group_list, mGroupBeanList) {
             @Override

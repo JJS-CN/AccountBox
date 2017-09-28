@@ -159,11 +159,12 @@ public class MainActivity extends JJsActivity {
                 groupName.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        rv.setVisibility(rv.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+                        groupBean.setOpen(!groupBean.getOpen());
+                        rv.setVisibility(groupBean.getOpen() ? View.VISIBLE : View.GONE);
                         //处理图片旋转动画
                         if (iv_more.getVisibility() == View.VISIBLE) {
                             RotateAnimation animation;
-                            if (rv.getVisibility() == View.VISIBLE) {
+                            if (groupBean.getOpen()) {
                                 animation = new RotateAnimation(0, 90, Animation.RELATIVE_TO_SELF,
                                         0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                             } else {
@@ -200,9 +201,14 @@ public class MainActivity extends JJsActivity {
                     iv_delete.setVisibility(View.INVISIBLE);
                     iv_more.setVisibility(View.VISIBLE);
                 }
+                if (groupBean.getOpen()){
+                    rv.setVisibility(View.VISIBLE);
+                }else{
+                    rv.setVisibility(View.GONE);
+                }
                 if (iv_more.getVisibility() == View.VISIBLE) {
                     RotateAnimation animation;
-                    if (rv.getVisibility() == View.VISIBLE) {
+                    if (groupBean.getOpen()) {
                         animation = new RotateAnimation(0, 90, Animation.RELATIVE_TO_SELF,
                                 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
                     } else {
