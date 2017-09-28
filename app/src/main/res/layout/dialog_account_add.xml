@@ -64,7 +64,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="创建类型："/>
+                    android:text="创建类型："
+                    android:textSize="@dimen/DefaultTextSize"/>
 
                 <RadioGroup
                     android:id="@+id/radio_type"
@@ -75,20 +76,22 @@
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="账号"/>
+                        android:text="账号"
+                        android:textSize="@dimen/DefaultTextSize"/>
 
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="群组"/>
+                        android:text="群组"
+                        android:textSize="@dimen/DefaultTextSize"/>
 
                 </RadioGroup>
             </LinearLayout>
 
             <LinearLayout
-                android:layout_marginBottom="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:gravity="center_vertical"
@@ -98,7 +101,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="级别："/>
+                    android:text="级别："
+                    android:textSize="@dimen/DefaultTextSize"/>
 
                 <RadioGroup
                     android:id="@+id/radio_type_pwd"
@@ -109,17 +113,20 @@
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="个人"/>
+                        android:text="个人"
+                        android:textSize="@dimen/DefaultTextSize"/>
 
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="组员"/>
+                        android:text="组员"
+                        android:textSize="@dimen/DefaultTextSize"/>
 
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="公开"/>
+                        android:text="公开"
+                        android:textSize="@dimen/DefaultTextSize"/>
                 </RadioGroup>
             </LinearLayout>
             <!--账号情况-->
@@ -211,7 +218,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="所属分组："
-                        android:textSize="12sp"/>
+                        android:textSize="@dimen/DefaultTextSize"/>
 
                     <TextView
                         android:id="@+id/tv_open_group"
@@ -221,7 +228,7 @@
                         android:gravity="right"
                         android:text="请选择"
                         android:textColor="@color/colorAccent"
-                        android:textSize="12sp"/>
+                        android:textSize="@dimen/DefaultTextSize"/>
 
                     <ImageView
                         android:layout_width="wrap_content"

@@ -1,5 +1,6 @@
 package com.account.box.activity;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,7 +23,6 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -138,7 +138,7 @@ public class MainActivity extends JJsActivity {
         //列表展示控件
         mQuickAdapter = new QuickAdapter<GroupBean>(R.layout.recycler_group_show, mGroupBeanList) {
             @Override
-            public void _convert(QuickHolder quickHolder, final GroupBean groupBean) {
+            public void _convert(final QuickHolder quickHolder, final GroupBean groupBean) {
                 //需要重置更新后的数据，否则查看不了
                 groupBean.resetAccountList();
 
@@ -148,14 +148,30 @@ public class MainActivity extends JJsActivity {
                 final View iv_more = quickHolder.getView(R.id.iv_more);
                 final View iv_cancel = quickHolder.getView(R.id.iv_cancel);
                 final View iv_save = quickHolder.getView(R.id.iv_save);
-
+                //设置默认初始值
                 if (APP.getInstance().mLoginType > groupBean.getPasswordType()) {
                     groupName.setText("无权限");
                 } else {
                     groupName.setText(groupBean.getName());
                 }
+                if (groupBean.getAccountList() == null || groupBean.getAccountList().size() == 0) {
+                    iv_delete.setVisibility(View.VISIBLE);
+                    iv_more.setVisibility(View.INVISIBLE);
+                } else {
+                    iv_delete.setVisibility(View.INVISIBLE);
+                    iv_more.setVisibility(View.VISIBLE);
+                }
+                //设置list是否展示，且控制箭头方向
+                if (groupBean.getOpen()) {
+                    rv.setVisibility(View.VISIBLE);
+                    iv_more.setRotation(90);
+                } else {
+                    rv.setVisibility(View.GONE);
+                    iv_more.setRotation(0);
+                }
 
                 groupName.setBackgroundColor(TitleColors[quickHolder.getAdapterPosition() % 10]);
+                //点击组 切换list显示
                 groupName.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -163,22 +179,27 @@ public class MainActivity extends JJsActivity {
                         rv.setVisibility(groupBean.getOpen() ? View.VISIBLE : View.GONE);
                         //处理图片旋转动画
                         if (iv_more.getVisibility() == View.VISIBLE) {
-                            RotateAnimation animation;
-                            if (groupBean.getOpen()) {
-                                animation = new RotateAnimation(0, 90, Animation.RELATIVE_TO_SELF,
-                                        0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                            } else {
-                                animation = new RotateAnimation(90, 0, Animation.RELATIVE_TO_SELF,
-                                        0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                            }
-                            animation.setDuration(150);
-                            animation.setFillAfter(true);
-                            animation.setInterpolator(new AccelerateDecelerateInterpolator());
-                            iv_more.startAnimation(animation);
-                        }
+                            final ValueAnimator animator;
 
+                            if (groupBean.getOpen()) {
+                                animator = ValueAnimator.ofFloat(0, 90);
+                            } else {
+                                animator = ValueAnimator.ofFloat(90, 0);
+                            }
+                            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                @Override
+                                public void onAnimationUpdate(ValueAnimator animation) {
+                                    iv_more.setRotation((Float) animation.getAnimatedValue());
+                                }
+                            });
+                            animator.setDuration(150);
+                            animator.setInterpolator(new AccelerateDecelerateInterpolator());
+                            animator.start();
+                        }
+                        mRv.scrollToPosition(quickHolder.getAdapterPosition());
                     }
                 });
+                //长按组 进行修改名字
                 groupName.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
@@ -193,35 +214,7 @@ public class MainActivity extends JJsActivity {
                         return false;
                     }
                 });
-                //设置默认初始值
-                if (groupBean.getAccountList() == null || groupBean.getAccountList().size() == 0) {
-                    iv_delete.setVisibility(View.VISIBLE);
-                    iv_more.setVisibility(View.INVISIBLE);
-                } else {
-                    iv_delete.setVisibility(View.INVISIBLE);
-                    iv_more.setVisibility(View.VISIBLE);
-                }
-                if (groupBean.getOpen()){
-                    rv.setVisibility(View.VISIBLE);
-                }else{
-                    rv.setVisibility(View.GONE);
-                }
-                if (iv_more.getVisibility() == View.VISIBLE) {
-                    RotateAnimation animation;
-                    if (groupBean.getOpen()) {
-                        animation = new RotateAnimation(0, 90, Animation.RELATIVE_TO_SELF,
-                                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                    } else {
-                        animation = new RotateAnimation(90, 0, Animation.RELATIVE_TO_SELF,
-                                0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                    }
-                    animation.setDuration(1);
-                    animation.setFillAfter(true);
-                    animation.setInterpolator(new AccelerateDecelerateInterpolator());
-                    iv_more.startAnimation(animation);
-                }
-
-                //删除按钮
+                //删除组 组内数据为空时才行
                 iv_delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -262,7 +255,6 @@ public class MainActivity extends JJsActivity {
                     }
                 });
 
-
                 rv.setLayoutManager(new LinearLayoutManager(mContext));
                 QuickAdapter adapter = new QuickAdapter<AccountBean>(R.layout.recycler_account_details, groupBean.getAccountList()) {
                     @Override
@@ -283,10 +275,10 @@ public class MainActivity extends JJsActivity {
 
                         ImageView update = quickHolder.getView(R.id.iv_update);
                         ImageView delete = quickHolder.getView(R.id.iv_delete);
+                        //更新修改数据
                         update.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                //更新修改数据
                                 new AddDialog(MainActivity.this, accountBean)
                                         .setOnChangeListener(new AddDialog.OnChangeListner() {
                                             @Override
@@ -297,6 +289,7 @@ public class MainActivity extends JJsActivity {
                                         .show();
                             }
                         });
+                        //删除数据
                         delete.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -349,6 +342,7 @@ public class MainActivity extends JJsActivity {
                     case R.id.navigation_item_loginRecord:
                         break;
                     case R.id.navigation_item_password:
+                        ResetPwdActivity.open(MainActivity.this);
                         break;
                     case R.id.navigation_item_loginOut:
                         SPUtils.getInstance().remove("password");
@@ -356,6 +350,7 @@ public class MainActivity extends JJsActivity {
                         finish();
                         break;
                 }
+                mDrawer.closeDrawer(Gravity.LEFT);
                 return true;
             }
         });

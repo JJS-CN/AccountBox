@@ -131,6 +131,7 @@ public class AddDialog extends Dialog {
                 hideInputMethod();
             }
         });
+
         //设置list
         if (mGroupBeanList.size() > 0) {
             mTvOpenGroup.setText(mGroupBeanList.get(0).getName());
@@ -200,6 +201,7 @@ public class AddDialog extends Dialog {
          * 对修改情况做处理
          */
         if (accountBean != null) {
+            mTvTopTitle.setText("Update");
             mLlAccountType.setVisibility(View.GONE);
             mRadioType.getChildAt(0).performClick();//默认选中账户
             mRadioTypePwd.getChildAt(accountBean.getPasswordType()).performClick();//设置级别
