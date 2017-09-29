@@ -20,11 +20,11 @@ import com.account.box.R;
 import com.account.box.Store;
 import com.account.box.activity.persenter.LoginPersenter;
 import com.account.box.activity.view.LoginView;
+import com.account.box.utils.GlideApp;
 import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.jjs.base.JJsActivity;
 import com.jjs.base.utils.GlideUtils;
 
@@ -76,9 +76,13 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
 
         //设置toolbar
         mTool.setSubtitle("登陆");
-        mTool.setLogo(R.drawable.ic_launcher);
+        mTool.setNavigationIcon(R.drawable.nulls);
         setSupportActionBar(mTool);
         editUserAccount.setText(SPUtils.getInstance().getString("username"));
+        File avatarFile = new File(APP.getInstance().getAvatarFile(), SPUtils.getInstance().getString("username") + ".jpg");
+        if (avatarFile.exists()) {
+            GlideApp.with(LoginActivity.this).load(avatarFile).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(ivAvatar);
+        }
         //监听焦点变化改变图片颜色
         editUserAccount.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -145,17 +149,14 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
                         //有数据时，查询本地保存头像，有头像时动态修改avatar内容进行展示，类QQ
                         File avatarFile = new File(APP.getInstance().getAvatarFile(), s.toString() + ".jpg");
                         if (avatarFile.exists()) {
-                            Glide.with(LoginActivity.this).load(avatarFile).apply(new RequestOptions().transform(new GlideUtils.CircleTransform())).into(ivAvatar);
+                            GlideApp.with(LoginActivity.this).load(avatarFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(ivAvatar);
+                        } else {
+                            ivAvatar.setImageResource(R.drawable.bili_default_avatar);
                         }
                     }
                 }
             }
         });
-        if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            //没有这个权限
-            //进行sd卡读写权限的申请
-            PermissionUtils.requestPermissions(this, 1, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, null);
-        }
 
     }
 
@@ -179,7 +180,18 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
                 RegisterActivity.open(this);
                 break;
             case R.id.sv_toLogin:
-                mPersenter.login(editUserAccount.getText().toString(), editUserPassword.getText().toString(), "");
+                PermissionUtils.requestPermissions(this, 1, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionUtils.OnPermissionListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        mPersenter.login(editUserAccount.getText().toString(), editUserPassword.getText().toString(), "");
+                    }
+
+                    @Override
+                    public void onPermissionDenied(String[] deniedPermissions) {
+
+                    }
+                });
+
                 break;
             case R.id.tv_toReset:
                 ResetPwdActivity.open(this);

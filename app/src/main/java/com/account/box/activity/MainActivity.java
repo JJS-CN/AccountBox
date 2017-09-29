@@ -52,7 +52,9 @@ import com.blankj.utilcode.util.ImageUtils;
 import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.jjs.base.JJsActivity;
+import com.jjs.base.utils.GlideUtils;
 import com.jjs.base.utils.recyclerview.QuickAdapter;
 import com.jjs.base.utils.recyclerview.QuickHolder;
 import com.jjs.base.widget.ReadMoreTextView;
@@ -155,6 +157,7 @@ public class MainActivity extends JJsActivity {
                 mDrawer.openDrawer(Gravity.LEFT);
             }
         });
+
     }
 
     private void initRecycler() {
@@ -354,15 +357,33 @@ public class MainActivity extends JJsActivity {
         mTvVersion.setText("Version：" + AppUtils.getAppVersionName());
         mIvHeadBg.setImageBitmap(ImageUtils.fastBlur(BitmapFactory.decodeResource(getResources(), R.drawable.c1), 0.2f, 25));
         mTvUserName.setText(APP.getInstance().mUserBean.getUsername());
+        File avatarFile = new File(APP.getInstance().getAvatarFile(), APP.getInstance().mUserBean.getUsername() + ".jpg");
+        GlideApp.with(this).load(avatarFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvAvatar);
+        GlideApp.with(this).load(avatarFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvHeadAvatar);
         mIvHeadAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 PermissionUtils.requestPermissions(MainActivity.this, 0, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionUtils.OnPermissionListener() {
                     @Override
                     public void onPermissionGranted() {
-                        //打开相册
-                        Intent intent = new Intent(Intent.ACTION_PICK);
-                        intent.setType("image/*");//相片类型
+                        //打开相册,并裁剪(此种方法魅族无法打开，因为取不到裁剪参数，需要分开编写)
+                       /* Intent intentCurp = new Intent(Intent.ACTION_PICK);
+                        intentCurp.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image*//*");
+                        intentCurp.putExtra("crop", "true");
+                        intentCurp.putExtra("aspectX", 1);// aspectX是宽高的比例，这里设置的是正方形（长宽比为1:1）
+                        intentCurp.putExtra("aspectY", 1);
+                        intentCurp.putExtra("outputX", 400); // outputX outputY 是裁剪图片宽高
+                        intentCurp.putExtra("outputY", 400); //不知怎么了，我设置不能设太大，<640
+                        intentCurp.putExtra("scale", true);
+                        File avatarFile = new File(APP.getInstance().getAvatarFile(), APP.getInstance().mUserBean.getUsername() + ".jpg");
+                        intentCurp.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(avatarFile));//设置裁剪后的输出路径
+                        intentCurp.putExtra("return-data", false);
+                        intentCurp.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+                        //intentCurp.putExtra("noFaceDetection", true);
+                        startActivityForResult(intentCurp, 0);*/
+                        Intent intent = new Intent(Intent.ACTION_PICK, null);
+                        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                "image/*");
                         startActivityForResult(intent, 0);
                     }
 
@@ -382,10 +403,12 @@ public class MainActivity extends JJsActivity {
                 switch (item.getItemId()) {
                     case R.id.navigation_item_setting:
                         break;
-                    case R.id.navigation_item_loginRecord:
-                        break;
+
                     case R.id.navigation_item_password:
                         ResetPwdActivity.open(MainActivity.this);
+                        break;
+                    case R.id.navigation_item_about:
+                        AboutActivity.open(MainActivity.this);
                         break;
                     case R.id.navigation_item_loginOut:
                         SPUtils.getInstance().remove("password");
@@ -443,28 +466,36 @@ public class MainActivity extends JJsActivity {
     }
 
     @Override
-    public void onActivityResult(int i, Intent intent) {
+    public void onActivityResult(int i, Intent resultData) {
         if (i == 0) {
-            Intent intentCurp = new Intent("com.android.camera.action.CROP");
-            intentCurp.setDataAndType(intent.getData(), "image/*");
-            intentCurp.putExtra("crop", "true");
-            intentCurp.putExtra("aspectX", 1);// aspectX是宽高的比例，这里设置的是正方形（长宽比为1:1）
-            intentCurp.putExtra("aspectY", 1);
-            intentCurp.putExtra("outputX", 400); // outputX outputY 是裁剪图片宽高
-            intentCurp.putExtra("outputY", 400); //不知怎么了，我设置不能设太大，<640
-            intentCurp.putExtra("scale", true);
+            Uri uri = resultData.getData();
+            Intent intent = new Intent("com.android.camera.action.CROP");
+            intent.setDataAndType(uri, "image/*");
+            // crop=true是设置在开启的Intent中设置显示的VIEW可裁剪
+            intent.putExtra("crop", "true");
+            // 去黑边
+            intent.putExtra("scale", true);
+            intent.putExtra("scaleUpIfNeeded", true);
+            // aspectX aspectY 是宽高的比例，根据自己情况修改
+            intent.putExtra("aspectX", 1);
+            intent.putExtra("aspectY", 1);
+            // outputX outputY 是裁剪图片宽高像素
+            intent.putExtra("outputX", 400);
+            intent.putExtra("outputY", 400);
+            intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+            //取消人脸识别功能
+            intent.putExtra("noFaceDetection", true);
+            //设置返回的uri
             File avatarFile = new File(APP.getInstance().getAvatarFile(), APP.getInstance().mUserBean.getUsername() + ".jpg");
-            intentCurp.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(avatarFile));//设置裁剪后的输出路径
-            intentCurp.putExtra("return-data", false);
-            intentCurp.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-            //intentCurp.putExtra("noFaceDetection", true);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(avatarFile));
+            //设置为不返回数据
+            intent.putExtra("return-data", false);
             startActivityForResult(intent, 1);
         }
         if (i == 1) {
             File avatarFile = new File(APP.getInstance().getAvatarFile(), APP.getInstance().mUserBean.getUsername() + ".jpg");
-            ToastUtils.showShort("是否存在：" + avatarFile.exists());
-            GlideApp.with(this).load(avatarFile).into(mIvAvatar);
-            GlideApp.with(this).load(avatarFile).into(mIvHeadAvatar);
+            GlideApp.with(this).load(avatarFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvAvatar);
+            GlideApp.with(this).load(avatarFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvHeadAvatar);
         }
     }
 

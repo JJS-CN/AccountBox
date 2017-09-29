@@ -140,9 +140,6 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
                 mEditUserPassword.setText("");
                 break;
             case R.id.sv_toRegister:
-                if (ContextCompat.checkSelfPermission(RegisterActivity.this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                    mPersenter.register(mEditUserAccount.getText().toString(), mEditUserPassword.getText().toString());
-                } else {
                     PermissionUtils.requestPermissions(this, 1, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionUtils.OnPermissionListener() {
                         @Override
                         public void onPermissionGranted() {
@@ -154,7 +151,6 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
 
                         }
                     });
-                }
                 break;
         }
     }

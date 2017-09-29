@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="10dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="由于现今生活，各种账号密码太多，造成很多账号密码忘记。\n    此软件用于记录各种账号使用，由于个人开发，安全性有限。\n       故：不推荐记录涉及金额的账号保存！"
+        android:textSize="13sp"/>
+
+</LinearLayout>

@@ -24,5 +24,6 @@ public class LauncherActivity extends Activity {
             LoginActivity.open(this);
         }
         finish();
+       // ToastUtils.showShort("启动成功！");
     }
 }

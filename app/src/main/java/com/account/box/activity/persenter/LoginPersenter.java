@@ -22,19 +22,17 @@ import java.security.KeyPair;
  */
 
 public class LoginPersenter extends BasePersenter<LoginView> {
-    private UserBeanDao mUserBeanDao;
 
 
     public LoginPersenter(LoginView view) {
         super(view);
-        mUserBeanDao = APP.getInstance().getDaoSession().getUserBeanDao();
     }
 
     public void sendSms(String phone) {
     }
 
     public void login(String name, String pwd, String sms) {
-        UserBean userBean = mUserBeanDao.queryBuilder()
+        UserBean userBean = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
                 .where(UserBeanDao.Properties.Username.eq(name))
                 .build().unique();
 
@@ -83,7 +81,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             ToastUtils.showShort("密码不能为空");
             return;
         }
-        long count = mUserBeanDao.queryBuilder()
+        long count = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
                 .where(UserBeanDao.Properties.Username.eq(name))
                 .count();
         if (count > 0) {
@@ -98,7 +96,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         userBean.setRsaPublicKey(keyPair.getPublic().getEncoded());
         userBean.setRsaPrivateKey(keyPair.getPrivate().getEncoded());
         //生成rsa加密串
-        mUserBeanDao.insert(userBean);
+        APP.getInstance().getDaoSession().getUserBeanDao().insert(userBean);
         APP.getInstance().mUserBean = userBean;
         APP.getInstance().mLoginType = Store.Password.Private;
         mView.userBeanSuccess();
@@ -146,7 +144,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             return;
         }
 
-        UserBean userBean = mUserBeanDao.queryBuilder()
+        UserBean userBean = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
                 .where(UserBeanDao.Properties.Username.eq(phone))
                 .build().unique();
         if (userBean == null) {
@@ -178,7 +176,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         }
 
 
-        mUserBeanDao.update(userBean);
+        APP.getInstance().getDaoSession().getUserBeanDao().update(userBean);
         APP.getInstance().mUserBean = userBean;
         mView.userBeanSuccess();
     }

@@ -1,5 +1,6 @@
 package com.account.box;
 
+import android.content.Context;
 import android.content.ContextWrapper;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,16 +21,16 @@ public class GreenDaoContext extends ContextWrapper {
 
     private String sdPath = "";//数据库路径，为空时默认选用data路径
 
-    public GreenDaoContext() {
-        super(APP.getInstance());
+    public GreenDaoContext(Context context) {
+        super(context);
     }
 
     /**
      * 传入数据库自定义路径，结尾不含分隔符
      * 将与dbName拼接
      */
-    public GreenDaoContext(String sdPath) {
-        super(APP.getInstance());
+    public GreenDaoContext(Context context,String sdPath) {
+        super(context);
         this.sdPath = sdPath;
     }
 
