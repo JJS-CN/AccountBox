@@ -1,16 +1,25 @@
 package com.account.box.activity;
 
+import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,10 +44,12 @@ import com.account.box.bean.AccountBeanDao;
 import com.account.box.bean.GroupBean;
 import com.account.box.bean.GroupBeanDao;
 import com.account.box.utils.AddDialog;
+import com.account.box.utils.GlideApp;
 import com.account.box.utils.RsaUtils;
 import com.account.box.utils.StatusBarUtils;
 import com.blankj.utilcode.util.AppUtils;
 import com.blankj.utilcode.util.ImageUtils;
+import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.JJsActivity;
@@ -47,6 +58,7 @@ import com.jjs.base.utils.recyclerview.QuickHolder;
 import com.jjs.base.widget.ReadMoreTextView;
 import com.rodolfonavalon.shaperipplelibrary.ShapeRipple;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,10 +67,11 @@ import butterknife.OnClick;
 
 
 public class MainActivity extends JJsActivity {
-
-
     @BindView(R.id.tool)
     Toolbar mTool;
+    @BindView(R.id.iv_avatar)
+    ImageView mIvAvatar;
+
     @BindView(R.id.rv)
     RecyclerView mRv;
     @BindView(R.id.ll_main)
@@ -96,11 +109,21 @@ public class MainActivity extends JJsActivity {
         context.startActivity(intent);
     }
 
+    public static void openPair(Activity context, ImageView avatarView) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        Pair pair = Pair.create(avatarView, "avatar");
+        Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(context, pair).toBundle();
+
+        ActivityCompat.startActivity(context, intent, bundle);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         StatusBarUtils.setColor(this, Color.TRANSPARENT);
+        ViewCompat.setTransitionName(mIvAvatar, "avatar");
         //获取数据库操作层
         mGroupBeanDao = APP.getInstance().getDaoSession().getGroupBeanDao();
         mAccountBeanDao = APP.getInstance().getDaoSession().getAccountBeanDao();
@@ -124,7 +147,7 @@ public class MainActivity extends JJsActivity {
         //设置toolbar
         mTool.setSubtitle("账号列表");
         setSupportActionBar(mTool);
-        mTool.setNavigationIcon(R.drawable.main_default_avatar);
+        mTool.setNavigationIcon(R.drawable.nulls);
         mTool.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -263,7 +286,7 @@ public class MainActivity extends JJsActivity {
                         TextView accPwd = quickHolder.getView(R.id.tv_account_password);
                         ReadMoreTextView accMsg = quickHolder.getView(R.id.read_account_message);
                         //登录账号数值大于组等级 或 账号等级时 不显示
-                        if (APP.getInstance().mLoginType > groupBean.getPasswordType() || APP.getInstance().mLoginType > accountBean.getPasswordType()) {
+                        if (APP.getInstance().mLoginType > accountBean.getPasswordType()) {
                             accName.setText("账号：" + "无权限");
                             accPwd.setText("密码：" + "无权限");
                             accMsg.setText("说明：" + "无权限");
@@ -331,6 +354,26 @@ public class MainActivity extends JJsActivity {
         mTvVersion.setText("Version：" + AppUtils.getAppVersionName());
         mIvHeadBg.setImageBitmap(ImageUtils.fastBlur(BitmapFactory.decodeResource(getResources(), R.drawable.c1), 0.2f, 25));
         mTvUserName.setText(APP.getInstance().mUserBean.getUsername());
+        mIvHeadAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PermissionUtils.requestPermissions(MainActivity.this, 0, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionUtils.OnPermissionListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        //打开相册
+                        Intent intent = new Intent(Intent.ACTION_PICK);
+                        intent.setType("image/*");//相片类型
+                        startActivityForResult(intent, 0);
+                    }
+
+                    @Override
+                    public void onPermissionDenied(String[] deniedPermissions) {
+
+                    }
+                });
+
+            }
+        });
 
         mNavigationLeft.setItemIconTintList(null);//使图标显示本来颜色
         mNavigationLeft.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -401,7 +444,28 @@ public class MainActivity extends JJsActivity {
 
     @Override
     public void onActivityResult(int i, Intent intent) {
-
+        if (i == 0) {
+            Intent intentCurp = new Intent("com.android.camera.action.CROP");
+            intentCurp.setDataAndType(intent.getData(), "image/*");
+            intentCurp.putExtra("crop", "true");
+            intentCurp.putExtra("aspectX", 1);// aspectX是宽高的比例，这里设置的是正方形（长宽比为1:1）
+            intentCurp.putExtra("aspectY", 1);
+            intentCurp.putExtra("outputX", 400); // outputX outputY 是裁剪图片宽高
+            intentCurp.putExtra("outputY", 400); //不知怎么了，我设置不能设太大，<640
+            intentCurp.putExtra("scale", true);
+            File avatarFile = new File(APP.getInstance().getAvatarFile(), APP.getInstance().mUserBean.getUsername() + ".jpg");
+            intentCurp.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(avatarFile));//设置裁剪后的输出路径
+            intentCurp.putExtra("return-data", false);
+            intentCurp.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+            //intentCurp.putExtra("noFaceDetection", true);
+            startActivityForResult(intent, 1);
+        }
+        if (i == 1) {
+            File avatarFile = new File(APP.getInstance().getAvatarFile(), APP.getInstance().mUserBean.getUsername() + ".jpg");
+            ToastUtils.showShort("是否存在：" + avatarFile.exists());
+            GlideApp.with(this).load(avatarFile).into(mIvAvatar);
+            GlideApp.with(this).load(avatarFile).into(mIvHeadAvatar);
+        }
     }
 
 

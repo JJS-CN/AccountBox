@@ -14,6 +14,8 @@ import android.widget.RadioGroup;
 
 import com.account.box.APP;
 import com.account.box.R;
+import com.blankj.utilcode.util.EncryptUtils;
+import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.JJsActivity;
 
@@ -56,6 +58,7 @@ public class ResetPwdActivity extends JJsActivity {
                 finish();
             }
         });
+
         for (int i = 0; i < mRadioTypePwd.getChildCount(); i++) {
             RadioButton btn = (RadioButton) mRadioTypePwd.getChildAt(i);
             if (APP.getInstance().mLoginType == i) {
@@ -79,20 +82,56 @@ public class ResetPwdActivity extends JJsActivity {
         String oldPwd = mEditPwdOld.getText().toString().trim();
         String newPwd1 = mEditPwdNew1.getText().toString().trim();
         String newPwd2 = mEditPwdNew2.getText().toString().trim();
-        //高级密码同样可以重置
-        if (mRadioTypePwd.getChildAt(0).getId() == mRadioTypePwd.getCheckedRadioButtonId()) {
-            //个人
-            if (!TextUtils.isEmpty(APP.getInstance().mUserBean.getPasswordPrivate()) && !APP.getInstance().mUserBean.getPasswordPrivate().equals(oldPwd)) {
-                ToastUtils.showShort("旧密码不正确");
-                return;
-            }
-        } else if (mRadioTypePwd.getChildAt(1).getId() == mRadioTypePwd.getCheckedRadioButtonId()) {
-            //组员
 
-        } else if (mRadioTypePwd.getChildAt(2).getId() == mRadioTypePwd.getCheckedRadioButtonId()) {
-            //公开
-
+        if (StringUtils.isEmpty(newPwd1) || StringUtils.isEmpty(newPwd2)) {
+            ToastUtils.showShort("新密码不能为空");
+            return;
+        }
+        if (!newPwd1.equals(newPwd2)) {
+            ToastUtils.showShort("2次新密码不正确");
+            return;
         }
 
+        boolean isOldPwd = false;
+        for (int i = 0; i < mRadioTypePwd.getChildCount(); i++) {
+            switch (i) {
+                case 0:
+                    //原始密码为空且为当前选中项，或者不为空且匹配成功
+                    //个人
+                    if (TextUtils.isEmpty(APP.getInstance().mUserBean.getPasswordPrivate()) && mRadioTypePwd.getChildAt(i).getId() == mRadioTypePwd.getCheckedRadioButtonId()
+                            || !TextUtils.isEmpty(APP.getInstance().mUserBean.getPasswordPrivate()) && APP.getInstance().mUserBean.getPasswordPrivate().equals(EncryptUtils.encryptMD5ToString(oldPwd))) {
+                        isOldPwd = true;
+                        APP.getInstance().mUserBean.setPasswordPrivate(EncryptUtils.encryptMD5ToString(newPwd1));
+                    }
+                    break;
+                case 1:
+                    //组员
+                    if (TextUtils.isEmpty(APP.getInstance().mUserBean.getPasswordProtected()) && mRadioTypePwd.getChildAt(i).getId() == mRadioTypePwd.getCheckedRadioButtonId()
+                            || !TextUtils.isEmpty(APP.getInstance().mUserBean.getPasswordProtected()) && APP.getInstance().mUserBean.getPasswordProtected().equals(EncryptUtils.encryptMD5ToString(oldPwd))) {
+                        isOldPwd = true;
+                        APP.getInstance().mUserBean.setPasswordProtected(EncryptUtils.encryptMD5ToString(newPwd1));
+                    }
+                    break;
+                case 2:
+                    //公开
+                    if (TextUtils.isEmpty(APP.getInstance().mUserBean.getPasswordPublic()) && mRadioTypePwd.getChildAt(i).getId() == mRadioTypePwd.getCheckedRadioButtonId()
+                            || !TextUtils.isEmpty(APP.getInstance().mUserBean.getPasswordPublic()) && APP.getInstance().mUserBean.getPasswordPublic().equals(EncryptUtils.encryptMD5ToString(oldPwd))) {
+                        isOldPwd = true;
+                        APP.getInstance().mUserBean.setPasswordPublic(EncryptUtils.encryptMD5ToString(newPwd1));
+                    }
+                    break;
+            }
+            //校验到选中项,或者匹配通过，不处理之后的低级密码
+            if (isOldPwd || mRadioTypePwd.getChildAt(i).getId() == mRadioTypePwd.getCheckedRadioButtonId()) {
+                break;
+            }
+        }
+        if (!isOldPwd) {
+            ToastUtils.showShort("旧密码不正确");
+            return;
+        }
+        APP.getInstance().getDaoSession().getUserBeanDao().update(APP.getInstance().mUserBean);
+        ToastUtils.showShort("修改密码成功");
+        finish();
     }
 }

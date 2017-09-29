@@ -11,12 +11,13 @@
         <!-- 使用 API Level 22以上编译的话，要拿掉前綴字 -->
         <item name="windowNoTitle">true</item>
         <!--窗口的颜色-->
-        <item name="android:windowBackground">@color/colorActivityBG</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <style name="MyDialog" parent="android:style/Theme.Dialog">
         <!--背景颜色及和透明程度-->
-        //<item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <!--是否去除标题 -->
         <item name="android:windowNoTitle">true</item>
         <!--是否去除边框-->

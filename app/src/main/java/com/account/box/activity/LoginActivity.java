@@ -143,7 +143,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
                 if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     if (s.toString().length() > 0) {
                         //有数据时，查询本地保存头像，有头像时动态修改avatar内容进行展示，类QQ
-                        File avatarFile = new File(APP.getInstance().getAvatarFile(), s.toString());
+                        File avatarFile = new File(APP.getInstance().getAvatarFile(), s.toString() + ".jpg");
                         if (avatarFile.exists()) {
                             Glide.with(LoginActivity.this).load(avatarFile).apply(new RequestOptions().transform(new GlideUtils.CircleTransform())).into(ivAvatar);
                         }
@@ -182,7 +182,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
                 mPersenter.login(editUserAccount.getText().toString(), editUserPassword.getText().toString(), "");
                 break;
             case R.id.tv_toReset:
-
+                ResetPwdActivity.open(this);
                 break;
         }
     }
@@ -195,7 +195,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
     @Override
     public void userBeanSuccess() {
         //打开主界面
-        MainActivity.open(this);
+        MainActivity.openPair(this, ivAvatar);
         //关闭本界面
         //ToastUtils.showShort("注册成功");
         setResult(Store.TAG.RESULT_OK);

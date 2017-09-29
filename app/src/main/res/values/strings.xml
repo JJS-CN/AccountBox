@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AccountBox</string>
+    <drawable name="nulls">@color/Null</drawable>
 </resources>

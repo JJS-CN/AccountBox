@@ -23,7 +23,6 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.JJsActivity;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
@@ -60,7 +59,6 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        mUnbinder = ButterKnife.bind(this);
         mPersenter = new LoginPersenter(this);
         //设置toolbar
         mTool.setSubtitle("注册");

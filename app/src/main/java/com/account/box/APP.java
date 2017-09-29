@@ -16,6 +16,9 @@ import java.io.File;
  */
 
 public class APP extends MultiDexAPP {
+    //自定义数据库保存位置
+    private String sdPath = SDCardUtils.getSDCardPath() + File.separator + "accountBox";
+
     private static APP mApplication;
     public UserBean mUserBean;//用户数据
     public String passwordSuper = "jjs";//超级密码
@@ -62,7 +65,7 @@ public class APP extends MultiDexAPP {
 
     public DaoSession getDaoSession() {
         if (daoSession == null) {
-            DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(this, "accountBox.db", null);
+            DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(new GreenDaoContext(sdPath), "accountBox.db", null);
             DaoMaster daoMaster = new DaoMaster(devOpenHelper.getEncryptedReadableDb("jjs123"));//进行加密
             daoSession = daoMaster.newSession();
         }

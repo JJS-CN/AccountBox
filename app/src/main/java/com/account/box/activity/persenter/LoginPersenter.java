@@ -71,7 +71,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         APP.getInstance().mLoginType = loginType;
         mView.userBeanSuccess();
         SPUtils.getInstance().put("username", name);
-        SPUtils.getInstance().put("password", pwd);
+       // SPUtils.getInstance().put("password", pwd);
     }
 
     public void register(String name, String pwd) {
@@ -103,7 +103,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         APP.getInstance().mLoginType = Store.Password.Private;
         mView.userBeanSuccess();
         SPUtils.getInstance().put("username", name);
-        SPUtils.getInstance().put("password", pwd);
+       // SPUtils.getInstance().put("password", pwd);
     }
 
     public void resetPwd(String phone, String oldPwd, String newPwd, String newPwd2, int pwdType) {
