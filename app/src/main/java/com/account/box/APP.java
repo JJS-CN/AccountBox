@@ -22,6 +22,8 @@ import java.io.File;
  */
 
 public class APP extends MultiDexAPP {
+    //APK的下载地址，使用github的地址
+    public String apkUrl = "https://raw.githubusercontent.com/JJS-CN/AccountBox/master/app/AccountBox.apk";
     //自定义数据库保存位置
     private String sdPath = SDCardUtils.getSDCardPath() + File.separator + "accountBox";
 
@@ -49,17 +51,17 @@ public class APP extends MultiDexAPP {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        isDebug = true;//重要开关，关系到异常捕获、log信息、热修复等功能的使用
+        isDebug = false;//重要开关，关系到异常捕获、log信息、热修复等功能的使用
         SophixManager.getInstance()
                 .setContext(this)
                 .setAppVersion(BuildConfig.VERSION_NAME)
-                .setSecretMetaData("24643061-1","331fb7e469d6445b11b041d3c2f6bb89","MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDRi5foTHsLSYG02535sExdyqaeI88gluu/CWuzMwlfXuh1RwmtJxFR2R34YztRPb+6QpOte8/WleyPbFUQsLxVEB4EqX+APVhC2Wma3J9/qOioLD+p56PAYfFwns3YqGx+4g7IXQmfJ4W7WRfJiK2WpJt3MfsiW07veiUP3RhoI0x9XOpwZFXpleqbPhFkQuGW0zz81tdvierdv3xz0Nf3wOCTWdulnCpJ3o1witjzrjiCL2qxM+N/YSyXy43pQjHvIMOpokHm+pLP0cJckoz7PraZt+B2O2zReT692TXqVnEpT/MMfQDFo5zo8fxMEyQ9PfBqWtHyfBpZelz82on3AgMBAAECggEBAMR2Ma2Nj0ts1pw/0CRbA65oIsFf54GxnkQVTBHORvpQ3Hega9UZLOblPnE0cFfiIhE6/ISJ8bpKBGoP8s1cNqc2Hj7WwAD3AvpiJt4X/b7OGZwbKHFfCauE6L5jVbHNbzOjNKLsf+nlP0AA7wl4CPCVUmF1zfRPUXm7tmXiMFDpG/i8S6JdbkDMtFzFnjHpXCOmvMc3259mQICCzkwxQM3bAxpqyv0YUQ8Lk9mQp+8vVVFhSqrpRFSrNmdEAjpD/77QIxPCaqVcfoywInsI1DmPXa2Q1JGVdcTdC3msYEK3sy2dTiB5rkSsEghBBtj5hpc+7V9wBAXC78Ab7zEu7BkCgYEA+Y/Py54QpTvfQOA6j4ufOB2K0lYef/unlJDZIgvpuh2v4k486pX/bUKzxezJhYfapekB4OUFVzWpAZ/bupbO81FPRAqkeGpx+kGGh0GU87Ad6ytdsew7h1MHChPbUCnGaVpNzHSFB9FgJaKexISY0FTu8Ix0eNgljb5q7CinfGMCgYEA1vN/6V54Kv4eog7ulHNrlDAdRcIz4/tZP6lbkLOS0b68bOA3sBInBshxzq4e1kYR8MNBWER2x1M5hhAyFJ2Y52uRmqtWmmdZ9EoODlVXyUVyaoscPY2C/h6nmZcfhA47QScUESm3Rk8TWJevU55c62IyTrzvJ1ytvoKBWu8yXl0CgYBwuB0SCf3Ys/c9lUm+BkFPFkDaih1Sjzb86oO4VgsmjjwgCliHWGK7VfJfBnlrP5Zpc5num2LTJiCE5FBZsb4dtm8H+4qX/PQoJap+swd1HeoVi0vRjjLBB6ZZTei0B3pfoXMcUtC3XEGCHjZ56q4fAw29RqNg5bfoksY2jpI/owKBgC2H4p5SLm4c6ew18X9se2smTe0K1+cAxMThYM3j28Ol/U+qpuEa1z1uk/zNkSaeLQqssVi7F9Xc4SBuqc0IHO1YMb1rcaq/HaTLUvLiTPgLR9MdqFu5b/fYEnRMOJbGVPLWDkAcb//qnBR1/ONfdhs9754SEy5pSTxDdJcId8jZAoGBAJqeGBeiBDWJX+MMh284Q+H+tALMhh0lGsYa3PosS/w5cBAGGc+VnegnscoCeF+Bk3bWzqGL2fYZk0X001hXuJX7VXqbSRgsQLrwk/P/oo63osdzCfr3YM6ltOu6FWYIPntgFN9W1CrnU/QvUR+RGs0sG6LVVvwkb37N4OEC5FnK")
+                .setSecretMetaData("24643061-1", "331fb7e469d6445b11b041d3c2f6bb89", "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDRi5foTHsLSYG02535sExdyqaeI88gluu/CWuzMwlfXuh1RwmtJxFR2R34YztRPb+6QpOte8/WleyPbFUQsLxVEB4EqX+APVhC2Wma3J9/qOioLD+p56PAYfFwns3YqGx+4g7IXQmfJ4W7WRfJiK2WpJt3MfsiW07veiUP3RhoI0x9XOpwZFXpleqbPhFkQuGW0zz81tdvierdv3xz0Nf3wOCTWdulnCpJ3o1witjzrjiCL2qxM+N/YSyXy43pQjHvIMOpokHm+pLP0cJckoz7PraZt+B2O2zReT692TXqVnEpT/MMfQDFo5zo8fxMEyQ9PfBqWtHyfBpZelz82on3AgMBAAECggEBAMR2Ma2Nj0ts1pw/0CRbA65oIsFf54GxnkQVTBHORvpQ3Hega9UZLOblPnE0cFfiIhE6/ISJ8bpKBGoP8s1cNqc2Hj7WwAD3AvpiJt4X/b7OGZwbKHFfCauE6L5jVbHNbzOjNKLsf+nlP0AA7wl4CPCVUmF1zfRPUXm7tmXiMFDpG/i8S6JdbkDMtFzFnjHpXCOmvMc3259mQICCzkwxQM3bAxpqyv0YUQ8Lk9mQp+8vVVFhSqrpRFSrNmdEAjpD/77QIxPCaqVcfoywInsI1DmPXa2Q1JGVdcTdC3msYEK3sy2dTiB5rkSsEghBBtj5hpc+7V9wBAXC78Ab7zEu7BkCgYEA+Y/Py54QpTvfQOA6j4ufOB2K0lYef/unlJDZIgvpuh2v4k486pX/bUKzxezJhYfapekB4OUFVzWpAZ/bupbO81FPRAqkeGpx+kGGh0GU87Ad6ytdsew7h1MHChPbUCnGaVpNzHSFB9FgJaKexISY0FTu8Ix0eNgljb5q7CinfGMCgYEA1vN/6V54Kv4eog7ulHNrlDAdRcIz4/tZP6lbkLOS0b68bOA3sBInBshxzq4e1kYR8MNBWER2x1M5hhAyFJ2Y52uRmqtWmmdZ9EoODlVXyUVyaoscPY2C/h6nmZcfhA47QScUESm3Rk8TWJevU55c62IyTrzvJ1ytvoKBWu8yXl0CgYBwuB0SCf3Ys/c9lUm+BkFPFkDaih1Sjzb86oO4VgsmjjwgCliHWGK7VfJfBnlrP5Zpc5num2LTJiCE5FBZsb4dtm8H+4qX/PQoJap+swd1HeoVi0vRjjLBB6ZZTei0B3pfoXMcUtC3XEGCHjZ56q4fAw29RqNg5bfoksY2jpI/owKBgC2H4p5SLm4c6ew18X9se2smTe0K1+cAxMThYM3j28Ol/U+qpuEa1z1uk/zNkSaeLQqssVi7F9Xc4SBuqc0IHO1YMb1rcaq/HaTLUvLiTPgLR9MdqFu5b/fYEnRMOJbGVPLWDkAcb//qnBR1/ONfdhs9754SEy5pSTxDdJcId8jZAoGBAJqeGBeiBDWJX+MMh284Q+H+tALMhh0lGsYa3PosS/w5cBAGGc+VnegnscoCeF+Bk3bWzqGL2fYZk0X001hXuJX7VXqbSRgsQLrwk/P/oo63osdzCfr3YM6ltOu6FWYIPntgFN9W1CrnU/QvUR+RGs0sG6LVVvwkb37N4OEC5FnK")
                 .setAesKey(null)
                 .setEnableDebug(isDebug)
                 .setPatchLoadStatusStub(new PatchLoadStatusListener() {
                     @Override
                     public void onLoad(final int mode, final int code, final String info, final int handlePatchVersion) {
-                        Log.e("热修复","接收到热修复通知：mode---" + mode + "  code---" + code + "  info---" + info + "  handlePatchVersion--" + handlePatchVersion);
+                        Log.e("热修复", "接收到热修复通知：mode---" + mode + "  code---" + code + "  info---" + info + "  handlePatchVersion--" + handlePatchVersion);
                         // 补丁加载回调通知
                         if (code == PatchStatus.CODE_LOAD_SUCCESS) {
                             //Log.e("热修复","热修复补丁加载成功");
