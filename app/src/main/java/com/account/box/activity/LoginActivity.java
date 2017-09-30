@@ -62,6 +62,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
 
     public static void open(Context context) {
         Intent intent = new Intent(context, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }
 

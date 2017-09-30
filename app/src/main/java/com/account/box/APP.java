@@ -1,6 +1,12 @@
 package com.account.box;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import com.account.box.bean.DaoMaster;
@@ -46,6 +52,7 @@ public class APP extends MultiDexAPP {
             UEHandler.init(this, LauncherActivity.class);
         }
         SophixManager.getInstance().queryAndLoadNewPatch();
+        initActLifecycle();
     }
 
     @Override
@@ -122,5 +129,76 @@ public class APP extends MultiDexAPP {
             daoSession = daoMaster.newSession();
         }
         return daoSession;
+    }
+
+
+    Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            SophixManager.getInstance().killProcessSafely();
+        }
+    };
+
+    /**
+     * 大于 0说明应用在前台
+     */
+    public int mFinalCount = 0;
+
+    /**
+     * 监听应用是否在前台
+     */
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    private void initActLifecycle() {
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+                mFinalCount++;
+                //如果mFinalCount ==1，说明是从后台到前台
+                LogUtils.e("onActivityStarted--->" + mFinalCount + "");
+                if (mFinalCount == 1) {
+                    //说明从后台回到了前台
+                    mHandler.removeCallbacksAndMessages(null);
+                }
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+                mFinalCount--;
+                //如果mFinalCount ==0，说明是前台到后台
+                LogUtils.e("onActivityStopped--->" + mFinalCount + "");
+                if (mFinalCount == 0) {
+                    //说明从前台回到了后台
+                    mHandler.sendEmptyMessageDelayed(0, 120000);
+                }
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+
+            }
+        });
+
+
     }
 }

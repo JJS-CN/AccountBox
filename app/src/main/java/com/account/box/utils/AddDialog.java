@@ -2,6 +2,7 @@ package com.account.box.utils;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +19,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -196,7 +198,17 @@ public class AddDialog extends Dialog {
             }
         });
         mRadioTypePwd.getChildAt(0).performClick();
-
+        //修改账户不能设置更高级别
+        for (int i = 0; i < mRadioTypePwd.getChildCount(); i++) {
+            if (i == APP.getInstance().mLoginType) {
+                mRadioTypePwd.getChildAt(i).performClick();//设置级别
+                break;
+            }
+            RadioButton radioButton = (RadioButton) mRadioTypePwd.getChildAt(i);
+            radioButton.setClickable(false);
+            radioButton.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+            radioButton.setTextColor(mContext.getResources().getColor(R.color.Hint));
+        }
         /**
          * 对修改情况做处理
          */
@@ -205,6 +217,7 @@ public class AddDialog extends Dialog {
             mLlAccountType.setVisibility(View.GONE);
             mRadioType.getChildAt(0).performClick();//默认选中账户
             mRadioTypePwd.getChildAt(accountBean.getPasswordType()).performClick();//设置级别
+
             mEditAccountAccount.setText(new String(RsaUtils.decryptByPublicKeyForSpilt(accountBean.getAccountName(), APP.getInstance().mUserBean.getRsaPublicKey())));//账户名
             mEditAccountPassword.setText(new String(RsaUtils.decryptByPublicKeyForSpilt(accountBean.getAccountPwd(), APP.getInstance().mUserBean.getRsaPublicKey())));//账户密码
             mEditAccountMessage.setText(accountBean.getAccountMsg());//账户内容

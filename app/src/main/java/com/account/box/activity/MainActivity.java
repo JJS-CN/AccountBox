@@ -3,9 +3,11 @@ package com.account.box.activity;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -39,6 +41,7 @@ import android.widget.TextView;
 
 import com.account.box.APP;
 import com.account.box.R;
+import com.account.box.Store;
 import com.account.box.bean.AccountBean;
 import com.account.box.bean.AccountBeanDao;
 import com.account.box.bean.GroupBean;
@@ -89,6 +92,9 @@ public class MainActivity extends JJsActivity {
     @BindView(R.id.iv_float)
     FloatingActionButton mIvFloat;
 
+    @BindView(R.id.ll_top)
+    LinearLayout ll_top;
+
     ImageView mIvHeadBg, mIvHeadAvatar;
     TextView mTvUserName, mTvGroupCount, mTvAccountCount, mTvVersion;
     private int rippleTime = 1500;//涟漪动画持续时间
@@ -105,6 +111,8 @@ public class MainActivity extends JJsActivity {
     //账户数据
     List<GroupBean> mGroupBeanList = new ArrayList<>();
     QuickAdapter mQuickAdapter;
+
+    InnerRecevier innerReceiver;
 
     public static void open(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -141,8 +149,15 @@ public class MainActivity extends JJsActivity {
         mRipple.setEnableRandomColor(true);
         mRipple.setEnableRandomPosition(true);
         if (APP.getInstance().mLoginType != 0) {
-            mIvFloat.hide();
+            //mIvFloat.hide();
         }
+
+        //创建广播
+         innerReceiver = new InnerRecevier();
+        //动态注册广播
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        //启动广播
+        registerReceiver(innerReceiver, intentFilter);
     }
 
     private void initToolBar() {
@@ -230,8 +245,7 @@ public class MainActivity extends JJsActivity {
                     @Override
                     public boolean onLongClick(View v) {
                         if (APP.getInstance().mLoginType > groupBean.getPasswordType()) {
-                            ToastUtils.showShort("无权限");
-                            return false;
+                            return true;
                         }
                         groupName.setFocusable(true);
                         groupName.setFocusableInTouchMode(true);
@@ -288,6 +302,8 @@ public class MainActivity extends JJsActivity {
                         TextView accName = quickHolder.getView(R.id.tv_account_name);
                         TextView accPwd = quickHolder.getView(R.id.tv_account_password);
                         ReadMoreTextView accMsg = quickHolder.getView(R.id.read_account_message);
+                        ImageView update = quickHolder.getView(R.id.iv_update);
+                        ImageView delete = quickHolder.getView(R.id.iv_delete);
                         //登录账号数值大于组等级 或 账号等级时 不显示
                         if (APP.getInstance().mLoginType > accountBean.getPasswordType()) {
                             accName.setText("账号：" + "无权限");
@@ -298,9 +314,19 @@ public class MainActivity extends JJsActivity {
                             accPwd.setText("密码：" + new String(RsaUtils.decryptByPublicKeyForSpilt(accountBean.getAccountPwd(), APP.getInstance().mUserBean.getRsaPublicKey())));
                             accMsg.setText("说明：" + accountBean.getAccountMsg());
                         }
+                        //非管理员无权删除
+                        if (APP.getInstance().mLoginType != Store.Password.Private) {
+                            delete.setVisibility(View.INVISIBLE);
+                        } else {
+                            delete.setVisibility(View.VISIBLE);
+                        }
+                        //低于权限无法修改
+                        if (APP.getInstance().mLoginType > accountBean.getPasswordType()) {
+                            update.setVisibility(View.INVISIBLE);
+                        } else {
+                            update.setVisibility(View.VISIBLE);
+                        }
 
-                        ImageView update = quickHolder.getView(R.id.iv_update);
-                        ImageView delete = quickHolder.getView(R.id.iv_delete);
                         //更新修改数据
                         update.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -514,6 +540,36 @@ public class MainActivity extends JJsActivity {
                         })
                         .show();
                 break;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ll_top.setAlpha(0);
+    }
+
+    class InnerRecevier extends BroadcastReceiver {
+
+        final String SYSTEM_DIALOG_REASON_KEY = "reason";
+
+        final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
+
+        final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(action)) {
+                String reason = intent.getStringExtra(SYSTEM_DIALOG_REASON_KEY);
+                if (reason != null) {
+                    if (reason.equals(SYSTEM_DIALOG_REASON_HOME_KEY)) {
+                        ll_top.setAlpha(0.8f);
+                    } else if (reason.equals(SYSTEM_DIALOG_REASON_RECENT_APPS)) {
+                        ll_top.setAlpha(0.8f);
+                    }
+                }
+            }
         }
     }
 }

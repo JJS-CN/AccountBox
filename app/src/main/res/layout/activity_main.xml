@@ -43,6 +43,23 @@
 
             </android.support.v7.widget.RecyclerView>
 
+            <LinearLayout
+                android:id="@+id/ll_top"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/Beige"
+                android:orientation="vertical">
+
+                <include layout="@layout/recycler_account_default"/>
+
+                <include layout="@layout/recycler_account_default"/>
+
+                <include layout="@layout/recycler_account_default"/>
+
+                <include layout="@layout/recycler_account_default"/>
+
+            </LinearLayout>
+
             <com.rodolfonavalon.shaperipplelibrary.ShapeRipple
                 android:id="@+id/ripple"
                 android:layout_width="match_parent"
