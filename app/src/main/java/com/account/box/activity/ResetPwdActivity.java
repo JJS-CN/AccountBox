@@ -2,19 +2,13 @@ package com.account.box.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.View;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
-import com.account.box.APP;
 import com.account.box.R;
-import com.blankj.utilcode.util.EncryptUtils;
 import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.JJsActivity;
@@ -31,8 +25,6 @@ public class ResetPwdActivity extends JJsActivity {
 
     @BindView(R.id.tool)
     Toolbar mTool;
-    @BindView(R.id.radio_type_pwd)
-    RadioGroup mRadioTypePwd;
     @BindView(R.id.edit_pwd_old)
     TextInputEditText mEditPwdOld;
     @BindView(R.id.edit_pwd_new1)
@@ -58,18 +50,6 @@ public class ResetPwdActivity extends JJsActivity {
                 finish();
             }
         });
-
-        for (int i = 0; i < mRadioTypePwd.getChildCount(); i++) {
-            RadioButton btn = (RadioButton) mRadioTypePwd.getChildAt(i);
-            if (APP.getInstance().mLoginType == i) {
-                btn.performClick();
-                break;
-            } else {
-                btn.setClickable(false);
-                btn.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
-                btn.setTextColor(getResources().getColor(R.color.Hint));
-            }
-        }
     }
 
     @Override
@@ -93,7 +73,7 @@ public class ResetPwdActivity extends JJsActivity {
         }
 
         boolean isOldPwd = false;
-        for (int i = 0; i < mRadioTypePwd.getChildCount(); i++) {
+       /* for (int i = 0; i < mRadioTypePwd.getChildCount(); i++) {
             switch (i) {
                 case 0:
                     //原始密码为空且为当前选中项，或者不为空且匹配成功
@@ -125,12 +105,12 @@ public class ResetPwdActivity extends JJsActivity {
             if (isOldPwd || mRadioTypePwd.getChildAt(i).getId() == mRadioTypePwd.getCheckedRadioButtonId()) {
                 break;
             }
-        }
+        }*/
         if (!isOldPwd) {
             ToastUtils.showShort("旧密码不正确");
             return;
         }
-        APP.getInstance().getDaoSession().getUserBeanDao().update(APP.getInstance().mUserBean);
+        //APP.getInstance().getDaoSession().getUserBeanDao().update(APP.getInstance().mUserBean);
         ToastUtils.showShort("修改密码成功");
         finish();
     }

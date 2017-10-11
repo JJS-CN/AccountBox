@@ -88,49 +88,10 @@
                 </RadioGroup>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="级别："
-                    android:textSize="@dimen/DefaultTextSize"/>
-
-                <RadioGroup
-                    android:id="@+id/radio_type_pwd"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="个人"
-                        android:textSize="@dimen/DefaultTextSize"/>
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="组员"
-                        android:textSize="@dimen/DefaultTextSize"/>
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="公开"
-                        android:textSize="@dimen/DefaultTextSize"/>
-                </RadioGroup>
-            </LinearLayout>
             <!--账号情况-->
             <LinearLayout
+                android:layout_marginTop="5dp"
                 android:id="@+id/ll_account"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -143,7 +104,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="请输入标题"
-                    android:visibility="gone">
+                   >
 
 
                     <android.support.design.widget.TextInputEditText

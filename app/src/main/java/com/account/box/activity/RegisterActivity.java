@@ -158,7 +158,6 @@ public class RegisterActivity extends JJsActivity<LoginPersenter> implements Log
     @Override
     public void userBeanSuccess() {
         //打开主界面
-        MainActivity.open(this);
         //关闭登陆注册界面
         ToastUtils.showShort("注册成功");
         setResult(Store.TAG.RESULT_OK);

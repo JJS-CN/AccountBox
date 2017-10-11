@@ -5,16 +5,17 @@ import android.text.TextUtils;
 import com.account.box.APP;
 import com.account.box.Store;
 import com.account.box.activity.view.LoginView;
+import com.account.box.bean.RxResult;
 import com.account.box.bean.UserBean;
-import com.account.box.bean.UserBeanDao;
-import com.account.box.utils.RsaUtils;
-import com.blankj.utilcode.util.EncryptUtils;
+import com.account.box.http.ApiService;
+import com.account.box.http.RxObserver;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.jjs.base.http.RetrofitUtils;
+import com.jjs.base.http.RxSchedulers;
 import com.jjs.base.mvp.BasePersenter;
 
 import java.lang.reflect.Field;
-import java.security.KeyPair;
 
 /**
  * 说明：
@@ -31,10 +32,10 @@ public class LoginPersenter extends BasePersenter<LoginView> {
     public void sendSms(String phone) {
     }
 
-    public void login(String name, String pwd, String sms) {
-        UserBean userBean = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
+    public void login(String name, String pwd, String imei) {
+       /* UserBean userBean = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
                 .where(UserBeanDao.Properties.Username.eq(name))
-                .build().unique();
+                .build().unique();*/
 
         if (TextUtils.isEmpty(name)) {
             ToastUtils.showShort("用户名不能为空!");
@@ -44,7 +45,17 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             ToastUtils.showShort("密码不能为空");
             return;
         }
-        if (userBean == null) {
+        RetrofitUtils.getInstance().create(ApiService.Login.class)
+                .login(name, pwd, imei)
+                .compose(RxSchedulers.getInstance(mView.bindToLifecycle()).showLoading(true).<RxResult<UserBean>>io_main())
+                .subscribe(new RxObserver<UserBean>() {
+                    @Override
+                    protected void _onSuccess(UserBean userBean) {
+                        APP.getInstance().mUserBean = userBean;
+                        mView.userBeanSuccess();
+                    }
+                });
+/*        if (userBean == null) {
             ToastUtils.showShort("用户不存在");
             return;
         }
@@ -68,12 +79,11 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         APP.getInstance().mUserBean = userBean;
         APP.getInstance().mLoginType = loginType;
         mView.userBeanSuccess();
-        SPUtils.getInstance().put("username", name);
-       // SPUtils.getInstance().put("password", pwd);
+        SPUtils.getInstance().put("username", name);*/
     }
 
-    public void register(String name, String pwd) {
-        if (TextUtils.isEmpty(name)) {
+    public void register(final String account, String pwd) {
+        if (TextUtils.isEmpty(account)) {
             ToastUtils.showShort("用户名不能为空!");
             return;
         }
@@ -81,15 +91,24 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             ToastUtils.showShort("密码不能为空");
             return;
         }
-        long count = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
-                .where(UserBeanDao.Properties.Username.eq(name))
+        RetrofitUtils.getInstance().create(ApiService.Login.class).register(account, pwd)
+                .compose(RxSchedulers.getInstance(mView.bindToLifecycle()).showLoading(true).<RxResult<String>>io_main())
+                .subscribe(new RxObserver<String>() {
+                    @Override
+                    protected void _onSuccess(String String) {
+                        SPUtils.getInstance().put("username", account);
+                        mView.userBeanSuccess();
+                    }
+                });
+      /*  long count = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
+                .where(UserBeanDao.Properties.Username.eq(account))
                 .count();
         if (count > 0) {
             ToastUtils.showShort("用户名已存在");
             return;
         }
         UserBean userBean = new UserBean();
-        userBean.setUsername(name);
+        userBean.setUsername(account);
         userBean.setPasswordPrivate(EncryptUtils.encryptMD5ToString(pwd));
 
         KeyPair keyPair = RsaUtils.generateRSAKeyPair();
@@ -100,8 +119,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         APP.getInstance().mUserBean = userBean;
         APP.getInstance().mLoginType = Store.Password.Private;
         mView.userBeanSuccess();
-        SPUtils.getInstance().put("username", name);
-       // SPUtils.getInstance().put("password", pwd);
+        SPUtils.getInstance().put("username", account);*/
     }
 
     public void resetPwd(String phone, String oldPwd, String newPwd, String newPwd2, int pwdType) {
@@ -144,14 +162,16 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             return;
         }
 
-        UserBean userBean = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
+
+      /*
+       UserBean userBean = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
                 .where(UserBeanDao.Properties.Username.eq(phone))
                 .build().unique();
         if (userBean == null) {
             ToastUtils.showShort("用户不存在");
             return;
         }
-        switch (pwdType) {
+      switch (pwdType) {
             case Store.Password.Private:
                 if (!TextUtils.isEmpty(userBean.getPasswordPrivate()) && !userBean.getPasswordPrivate().equals(EncryptUtils.encryptMD5ToString(oldPwd))) {
                     ToastUtils.showShort("旧密码不正确");
@@ -174,10 +194,12 @@ public class LoginPersenter extends BasePersenter<LoginView> {
                 userBean.setPasswordPublic(EncryptUtils.encryptMD5ToString(newPwd));
                 break;
         }
-
-
-        APP.getInstance().getDaoSession().getUserBeanDao().update(userBean);
+           APP.getInstance().getDaoSession().getUserBeanDao().update(userBean);
         APP.getInstance().mUserBean = userBean;
         mView.userBeanSuccess();
+
+        */
+
+
     }
 }

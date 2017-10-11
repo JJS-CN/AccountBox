@@ -9,8 +9,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
@@ -71,9 +71,6 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mPersenter = new LoginPersenter(this);
-        if (!TextUtils.isEmpty(SPUtils.getInstance().getString("username")) && !TextUtils.isEmpty(SPUtils.getInstance().getString("password"))) {
-            mPersenter.login(SPUtils.getInstance().getString("username"), SPUtils.getInstance().getString("password"), "");
-        }
 
         //设置toolbar
         mTool.setSubtitle("登陆");
@@ -166,7 +163,8 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
     public void onActivityResult(int i, Intent intent) {
         //从注册界面返回成功，需要关闭界面
         if (i == Store.Login.openRegisterCode) {
-            finish();
+            editUserAccount.setText(SPUtils.getInstance().getString("username"));
+            editUserPassword.setText("");
         }
     }
 
@@ -181,10 +179,17 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
                 RegisterActivity.open(this);
                 break;
             case R.id.sv_toLogin:
-                PermissionUtils.requestPermissions(this, 1, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionUtils.OnPermissionListener() {
+                PermissionUtils.requestPermissions(this, 1, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE}, new PermissionUtils.OnPermissionListener() {
                     @Override
                     public void onPermissionGranted() {
-                        mPersenter.login(editUserAccount.getText().toString(), editUserPassword.getText().toString(), "");
+                        TelephonyManager TelephonyMgr = (TelephonyManager) LoginActivity.this.getSystemService(TELEPHONY_SERVICE);
+                        String imei = "";
+                        try {
+                            imei = TelephonyMgr.getDeviceId();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        mPersenter.login(editUserAccount.getText().toString(), editUserPassword.getText().toString(), imei);
                     }
 
                     @Override
@@ -210,7 +215,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
         //打开主界面
         MainActivity.openPair(this, ivAvatar);
         //关闭本界面
-        //ToastUtils.showShort("注册成功");
+        ToastUtils.showShort("登录成功");
         setResult(Store.TAG.RESULT_OK);
         finish();
     }

@@ -1,87 +1,74 @@
 package com.account.box.bean;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Generated;
-
 /**
  * 说明：只保存账号数据，层级关系由另一张表维护
  * Created by Administrator on 2017/8/26.
  */
-@Entity
 public class AccountBean {
-    @Id
-    private Long id;
-    private Long userId;
+    private String id;
+    private String title;
+    private String remark;//标题
+    private String account_name;
+    private String password;
+    private String group_id;
 
-    private String accoutTitle;//标题
-    private byte[] accountName;
-    private byte[]  accountPwd;
-    private String accountMsg;
-    private Long groupId;//所属层级id
-    private int passwordType;//所属级别
-    @Generated(hash = 1742324205)
-    public AccountBean(Long id, Long userId, String accoutTitle, byte[] accountName,
-            byte[] accountPwd, String accountMsg, Long groupId, int passwordType) {
-        this.id = id;
-        this.userId = userId;
-        this.accoutTitle = accoutTitle;
-        this.accountName = accountName;
-        this.accountPwd = accountPwd;
-        this.accountMsg = accountMsg;
-        this.groupId = groupId;
-        this.passwordType = passwordType;
-    }
-    @Generated(hash = 1267506976)
-    public AccountBean() {
-    }
-    public Long getId() {
-        return this.id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public Long getUserId() {
-        return this.userId;
-    }
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-    public String getAccoutTitle() {
-        return this.accoutTitle;
-    }
-    public void setAccoutTitle(String accoutTitle) {
-        this.accoutTitle = accoutTitle;
-    }
-    public byte[] getAccountName() {
-        return this.accountName;
-    }
-    public void setAccountName(byte[] accountName) {
-        this.accountName = accountName;
-    }
-    public byte[] getAccountPwd() {
-        return this.accountPwd;
-    }
-    public void setAccountPwd(byte[] accountPwd) {
-        this.accountPwd = accountPwd;
-    }
-    public String getAccountMsg() {
-        return this.accountMsg;
-    }
-    public void setAccountMsg(String accountMsg) {
-        this.accountMsg = accountMsg;
-    }
-    public Long getGroupId() {
-        return this.groupId;
-    }
-    public void setGroupId(Long groupId) {
-        this.groupId = groupId;
-    }
-    public int getPasswordType() {
-        return this.passwordType;
-    }
-    public void setPasswordType(int passwordType) {
-        this.passwordType = passwordType;
+    public String getId() {
+        return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public String getAccount_name() {
+        return account_name;
+    }
+
+    public void setAccount_name(String account_name) {
+        this.account_name = account_name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getGroup_id() {
+        return group_id;
+    }
+
+    public void setGroup_id(String group_id) {
+        this.group_id = group_id;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountBean{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", remark='" + remark + '\'' +
+                ", account_name='" + account_name + '\'' +
+                ", password='" + password + '\'' +
+                ", group_id='" + group_id + '\'' +
+                '}';
+    }
 }

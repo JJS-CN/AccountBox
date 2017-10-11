@@ -8,25 +8,24 @@ import java.io.Serializable;
  */
 
 public class RxResult<T> implements Serializable {
-    private boolean type;//标识接口是否请求成功
-    private int code;//错误码
+    private int error;//错误码
     private String msg;//错误提示
-    T body;//正确时的json数据
+    T data;//正确时的json数据
 
-    public boolean isType() {
-        return type;
+
+    public boolean isSuccess() {
+        if (error == 0)
+            return true;
+        else
+            return false;
     }
 
-    public void setType(boolean type) {
-        this.type = type;
+    public int getError() {
+        return error;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
+    public void setError(int error) {
+        this.error = error;
     }
 
     public String getMsg() {
@@ -37,21 +36,22 @@ public class RxResult<T> implements Serializable {
         this.msg = msg;
     }
 
-    public T getBody() {
-        return body;
+    public T getData() {
+        return data;
     }
 
-    public void setBody(T body) {
-        this.body = body;
+    public void setData(T data) {
+        this.data = data;
     }
 
     @Override
     public String toString() {
         return "RxResult{" +
-                "type=" + type +
-                ", code=" + code +
+                "success=" + isSuccess() +
+                ", error=" + error +
                 ", msg='" + msg + '\'' +
-                ", body=" + body +
+                ", data=" + data +
                 '}';
     }
+
 }

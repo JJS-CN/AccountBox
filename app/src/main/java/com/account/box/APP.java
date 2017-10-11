@@ -9,8 +9,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.account.box.bean.DaoMaster;
-import com.account.box.bean.DaoSession;
 import com.account.box.bean.UserBean;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.SDCardUtils;
@@ -42,9 +40,9 @@ public class APP extends MultiDexAPP {
     public void onCreate() {
         mApplication = this;
         //是否打开log开关
-        Store.HTTP.URL_release = "";
-        Store.HTTP.URL_debug = "";
-
+        Store.HTTP.URL_release = "http://119.29.238.157/api/";
+        Store.HTTP.URL_debug = "http://119.29.238.157/api/";
+        isDebug=true;
         //需要在super之前调用设置
         super.onCreate();
         if (!isDebug) {
@@ -115,20 +113,6 @@ public class APP extends MultiDexAPP {
             LogUtils.e("创建头像目录：" + result);
         }
         return avatarFile;
-    }
-
-    /**
-     * 获取GreeenDao3.2版本的dao层
-     */
-    private DaoSession daoSession;
-
-    public DaoSession getDaoSession() {
-        if (daoSession == null) {
-            DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(new GreenDaoContext(this, sdPath), "accountBox.db", null);
-            DaoMaster daoMaster = new DaoMaster(devOpenHelper.getEncryptedReadableDb("jjs123"));//进行加密
-            daoSession = daoMaster.newSession();
-        }
-        return daoSession;
     }
 
 
