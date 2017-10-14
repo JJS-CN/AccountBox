@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-   <!-- <item
-        android:id="@+id/navigation_item_loginRecord"
-        android:icon="@drawable/ic_record"
-        android:title="Login Record"/>-->
+    <!-- <item
+         android:id="@+id/navigation_item_loginRecord"
+         android:icon="@drawable/ic_record"
+         android:title="Login Record"/>-->
 
     <item
-        android:id="@+id/navigation_item_password"
-        android:icon="@drawable/ic_reset_password"
-        android:title="Reset Password"/>
+        android:id="@+id/navigation_item_message"
+        android:icon="@drawable/ic_message"
+        android:title="Message"/>
 
     <item
         android:id="@+id/navigation_item_setting"

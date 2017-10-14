@@ -1,6 +1,8 @@
 package com.account.box.http;
 
 import com.account.box.bean.AccountBean;
+import com.account.box.bean.GroupBean;
+import com.account.box.bean.MessageBean;
 import com.account.box.bean.RxResult;
 import com.account.box.bean.UserBean;
 import com.jjs.base.http.JJsApiService;
@@ -73,6 +75,19 @@ public class ApiService extends JJsApiService {
         @FormUrlEncoded
         Observable<RxResult<AccountBean>> updateAccount(@Field("accountId") String accountId, @Field("groupId") String groupId, @Field("title") String title, @Field("accountName") String accountName, @Field("password") String password, @Field("remark") String remark);
 
+        /**
+         * 获取用户下所有账号
+         */
+        @POST("group/getAllGroupDetailByUserId")
+        @FormUrlEncoded
+        Observable<RxResult<List<GroupBean>>> getGroupListAll(@Field("userId") String userId);
+
+        /**
+         * 删除账号
+         */
+        @POST("account/deleteAccount")
+        @FormUrlEncoded
+        Observable<RxResult<String>> deleteAccount(@Field("accountId") String accountId);
 
     }
 
@@ -83,5 +98,42 @@ public class ApiService extends JJsApiService {
         @Multipart
         @POST("user/uploadUserHead")
         Observable<RxResult<String>> uploadUserHead2(@Part List<MultipartBody.Part> partList);
+
+        /**
+         * 修改密码
+         */
+        @POST("user/changePassword")
+        @FormUrlEncoded
+        Observable<RxResult<String>> changePassword(@Field("account") String account, @Field("oldPassword") String oldPassword, @Field("newPassword") String newPassword);
+    }
+
+    public interface Message {
+        /**
+         * 获取所有消息
+         */
+        @POST("message/getAllMessages")
+        @FormUrlEncoded
+        Observable<RxResult<List<MessageBean>>> getAllMessages(@Field("userId") String userId);
+
+        /**
+         * 获取消息：发送出去的
+         */
+        @POST("message/getSendMessages")
+        @FormUrlEncoded
+        Observable<RxResult<List<MessageBean>>> getSendMessages(@Field("userId") String userId);
+
+        /**
+         * 获取消息：接收到的
+         */
+        @POST("message/getReceiveMessages")
+        @FormUrlEncoded
+        Observable<RxResult<List<MessageBean>>> getReceiveMessages(@Field("userId") String userId);
+
+        /**
+         * 发送分组共享邀请
+         */
+        @POST("message/inviteUserJoinGroup")
+        @FormUrlEncoded
+        Observable<RxResult<String>> inviteUserJoinGroup(@Field("sendUserId") String sendUserId, @Field("receiveUserName") String receiveUserName, @Field("groupId") String groupId);
     }
 }

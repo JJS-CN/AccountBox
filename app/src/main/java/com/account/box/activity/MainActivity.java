@@ -41,8 +41,6 @@ import android.widget.TextView;
 
 import com.account.box.APP;
 import com.account.box.R;
-import com.account.box.activity.persenter.LoginPersenter;
-import com.account.box.activity.view.LoginView;
 import com.account.box.bean.AccountBean;
 import com.account.box.bean.GroupBean;
 import com.account.box.bean.RxResult;
@@ -76,7 +74,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
 
-public class MainActivity extends JJsActivity<LoginPersenter> implements LoginView {
+public class MainActivity extends JJsActivity {
     @BindView(R.id.tool)
     Toolbar mTool;
     @BindView(R.id.iv_avatar)
@@ -112,8 +110,9 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
             Color.parseColor("#9AFF9A"), Color.parseColor("#9F79EE")};
     //账户数据
     QuickAdapter mQuickAdapter;
-
     InnerRecevier innerReceiver;
+
+    List<GroupBean> mGroupBeanList;
 
     public static void open(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -136,7 +135,7 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
         StatusBarUtils.setColor(this, Color.TRANSPARENT);
         ViewCompat.setTransitionName(mIvAvatar, "avatar");
         //获取数据库操作层
-        mPersenter = new LoginPersenter(this);
+        mGroupBeanList = APP.getInstance().mUserBean.getGroups();
         //执行各view的初始化操作
         initToolBar();
         initRecycler();
@@ -184,7 +183,7 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
 
     private void initRecycler() {
         //列表展示控件
-        mQuickAdapter = new QuickAdapter<GroupBean>(R.layout.recycler_group_show, APP.getInstance().mUserBean.getGroups()) {
+        mQuickAdapter = new QuickAdapter<GroupBean>(R.layout.recycler_group_show, mGroupBeanList) {
             @Override
             public void _convert(final QuickHolder quickHolder, final GroupBean groupBean) {
                 //需要重置更新后的数据，否则查看不了
@@ -319,18 +318,10 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
                 };
                 adapter.setOnItemChildClickListener(new OnItemChildClickListener() {
                     @Override
-                    public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+                    public void onItemChildClick(BaseQuickAdapter adapter, View view, final int position) {
                         switch (view.getId()) {
                             case R.id.iv_update:
-                                new AddDialog(MainActivity.this, groupBean.getAccounts().get(position))
-                                        .setOnChangeListener(new AddDialog.OnChangeListner() {
-                                            @Override
-                                            public void onChange(int type) {
-                                                mPersenter.login(APP.getInstance().mUserBean.getUser().getAccount(), APP.getInstance().mUserBean.getUser().getPassword(), APP.getInstance().mUserBean.getUser().getLast_login_imei());
-
-                                            }
-                                        })
-                                        .show();
+                                OpenDialog(groupBean.getAccounts().get(position));
                                 break;
                             case R.id.iv_delete:
                                 //删除数据
@@ -340,9 +331,17 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
                                         .setPositiveButton("确定删除", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                // mAccountBeanDao.delete(accountBean);
-                                                mQuickAdapter.notifyDataSetChanged();
-                                                updateNavigation();
+                                                //更新数据
+                                                RetrofitUtils.getInstance()
+                                                        .create(ApiService.Account.class)
+                                                        .deleteAccount(groupBean.getAccounts().get(position).getId())
+                                                        .compose(RxSchedulers.getInstance(MainActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
+                                                        .subscribe(new RxObserver<String>() {
+                                                            @Override
+                                                            protected void _onSuccess(String s) {
+                                                                updateAccountList();
+                                                            }
+                                                        });
                                             }
                                         })
                                         .setNegativeButton("取消", null)
@@ -420,10 +419,10 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_item_setting:
+                        SettingActivity.open(MainActivity.this);
                         break;
-
-                    case R.id.navigation_item_password:
-                        ResetPwdActivity.open(MainActivity.this);
+                    case R.id.navigation_item_message:
+                        MessageListActivity.open(MainActivity.this);
                         break;
                     case R.id.navigation_item_about:
                         AboutActivity.open(MainActivity.this);
@@ -440,47 +439,54 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
         });
     }
 
+    /**
+     * 更新组数量和账号数量
+     */
     private void updateNavigation() {
-        //long groupCount = mGroupBeanDao.queryBuilder().where(GroupBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId())).count();
-        //long accountCount = mAccountBeanDao.queryBuilder().where(AccountBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getId())).count();
-        mTvGroupCount.setText("组:" + APP.getInstance().mUserBean.getGroups().size());
+        mTvGroupCount.setText("组:" + mGroupBeanList.size());
         int accountCount = 0;
-        for (int i = 0; i < APP.getInstance().mUserBean.getGroups().size(); i++) {
-            accountCount += APP.getInstance().mUserBean.getGroups().get(i).getAccounts().size();
+        for (int i = 0; i < mGroupBeanList.size(); i++) {
+            accountCount += mGroupBeanList.get(i).getAccounts().size();
         }
         mTvAccountCount.setText("账号:" + accountCount);
     }
 
+    /**
+     * 查询所有账号和组，并进行数据更新
+     */
     private void updateAccountList() {
         mRipple.startRipple();
-        mQuickAdapter.setNewData(APP.getInstance().mUserBean.getGroups());
-        closeAmin();
-        updateNavigation();
+        RetrofitUtils.getInstance()
+                .create(ApiService.Account.class)
+                .getGroupListAll(APP.getInstance().mUserBean.getUser().getId())
+                .compose(RxSchedulers.getInstance(this.bindToLifecycle()).<RxResult<List<GroupBean>>>io_main())
+                .subscribe(new RxObserver<List<GroupBean>>() {
+                    @Override
+                    protected void _onSuccess(List<GroupBean> groupBeen) {
+                        mGroupBeanList = groupBeen;
+                        mQuickAdapter.setNewData(mGroupBeanList);
+                        startRipple();
+                        updateNavigation();
+                    }
+                });
     }
 
-    private void closeAmin() {
-        AlphaAnimation alphaAnimation = new AlphaAnimation(1f, 0f);
-        alphaAnimation.setDuration(rippleTime);
-        alphaAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-        alphaAnimation.setFillAfter(true);
-        alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                mRipple.stopRipple();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        mRipple.startAnimation(alphaAnimation);
+    /**
+     * 打开账号新增/修改窗口
+     *
+     * @param bean 不传为新增
+     */
+    private void OpenDialog(AccountBean bean) {
+        new AddDialog(this, bean)
+                .setOnChangeListener(new AddDialog.OnChangeListner() {
+                    @Override
+                    public void onChange(int type) {
+                        updateAccountList();
+                    }
+                })
+                .show();
     }
+
 
     @Override
     public void onActivityResult(int i, Intent resultData) {
@@ -540,14 +546,7 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
         switch (view.getId()) {
             case R.id.iv_float:
                 //打开添加dialog
-                new AddDialog(this, null)
-                        .setOnChangeListener(new AddDialog.OnChangeListner() {
-                            @Override
-                            public void onChange(int type) {
-                                mPersenter.login(APP.getInstance().mUserBean.getUser().getAccount(), APP.getInstance().mUserBean.getUser().getPassword(), APP.getInstance().mUserBean.getUser().getLast_login_imei());
-                            }
-                        })
-                        .show();
+                OpenDialog(null);
                 break;
         }
     }
@@ -556,21 +555,6 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
     protected void onResume() {
         super.onResume();
         ll_top.setAlpha(0);
-    }
-
-    @Override
-    public void userBeanSuccess() {
-        updateAccountList();
-    }
-
-    @Override
-    public void sendSmsSuccess(String code) {
-
-    }
-
-    @Override
-    public void ResponseSuccess(int i, String s) {
-
     }
 
     class InnerRecevier extends BroadcastReceiver {
@@ -595,5 +579,30 @@ public class MainActivity extends JJsActivity<LoginPersenter> implements LoginVi
                 }
             }
         }
+    }
+
+    private void startRipple() {
+        mRipple.startRipple();
+        AlphaAnimation alphaAnimation = new AlphaAnimation(1f, 0f);
+        alphaAnimation.setDuration(rippleTime);
+        alphaAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
+        alphaAnimation.setFillAfter(true);
+        alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mRipple.stopRipple();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        mRipple.startAnimation(alphaAnimation);
     }
 }
