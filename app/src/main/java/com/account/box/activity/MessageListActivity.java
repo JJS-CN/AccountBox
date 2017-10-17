@@ -1,9 +1,11 @@
 package com.account.box.activity;
 
-import android.content.Context;
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -13,11 +15,13 @@ import android.widget.TextView;
 
 import com.account.box.APP;
 import com.account.box.R;
+import com.account.box.Store;
 import com.account.box.bean.MessageBean;
 import com.account.box.bean.RxResult;
 import com.account.box.http.ApiService;
 import com.account.box.http.RxObserver;
 import com.account.box.utils.ToolUtils;
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jjs.base.JJsActivity;
 import com.jjs.base.http.RetrofitUtils;
 import com.jjs.base.http.RxSchedulers;
@@ -53,10 +57,11 @@ public class MessageListActivity extends JJsActivity {
 
     List<MessageBean> mMessageList;
     QuickAdapter mQuickAdapter;
+    int checkPostion = 0;
 
-    public static void open(Context context) {
-        Intent intent = new Intent(context, MessageListActivity.class);
-        context.startActivity(intent);
+    public static void open(Activity activity) {
+        Intent intent = new Intent(activity, MessageListActivity.class);
+        activity.startActivityForResult(intent, Store.ResultCode.Message);
     }
 
     @Override
@@ -91,8 +96,60 @@ public class MessageListActivity extends JJsActivity {
                         labelView.setBgColor(getResources().getColor(R.color.Red));
                         break;
                 }
+                quickHolder.setVisible(R.id.shape_check, !messageBean.isRead());
             }
         };
+        mQuickAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseQuickAdapter adapter, View view, final int position) {
+                if (mMessageList.get(position).getState().equals("0") && APP.getInstance().mUserBean.getUser().getId().equals(mMessageList.get(position).getReceive_user_id())) {
+                    //表示未读
+                    new AlertDialog.Builder(MessageListActivity.this)
+                            .setTitle("是否同意这个邀请")
+                            .setMessage("用户：" + mMessageList.get(position).getSend_user_id() + "\n" + mMessageList.get(position).getContent())
+                            .setPositiveButton("同意", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(final DialogInterface dialog, int which) {
+                                    RetrofitUtils.getInstance().create(ApiService.Message.class)
+                                            .acceptInvite(APP.getInstance().mUserBean.getUser().getId(), mMessageList.get(position).getId())
+                                            .compose(RxSchedulers.getInstance(MessageListActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
+                                            .subscribe(new RxObserver<String>() {
+                                                @Override
+                                                protected void _onSuccess(String s) {
+                                                    checkPosition();
+                                                    setResult(Store.TAG.RESULT_OK);
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                }
+                            })
+                            .setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(final DialogInterface dialog, int which) {
+                                    RetrofitUtils.getInstance().create(ApiService.Message.class)
+                                            .rejectInvite(APP.getInstance().mUserBean.getUser().getId(), mMessageList.get(position).getId())
+                                            .compose(RxSchedulers.getInstance(MessageListActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
+                                            .subscribe(new RxObserver<String>() {
+                                                @Override
+                                                protected void _onSuccess(String s) {
+                                                    checkPosition();
+                                                    dialog.dismiss();
+                                                }
+                                            });
+                                }
+                            }).create().show();
+                    RetrofitUtils.getInstance().create(ApiService.Message.class)
+                            .changeMsgState(APP.getInstance().mUserBean.getUser().getId(), mMessageList.get(position).getId())
+                            .compose(RxSchedulers.getInstance(MessageListActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
+                            .subscribe(new RxObserver<String>() {
+                                @Override
+                                protected void _onSuccess(String s) {
+                                    checkPosition();
+                                }
+                            });
+                }
+            }
+        });
         mRvMessageList.setLayoutManager(new LinearLayoutManager(this));
         mRvMessageList.setAdapter(mQuickAdapter);
     }
@@ -106,19 +163,21 @@ public class MessageListActivity extends JJsActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.ll_send:
-                checkPosition(0);
+                checkPostion = 0;
+                checkPosition();
                 break;
             case R.id.ll_receive:
-                checkPosition(1);
+                checkPostion = 1;
+                checkPosition();
                 break;
         }
     }
 
-    private void checkPosition(int position) {
+    private void checkPosition() {
         for (int i = 0; i < mLlTab.getChildCount(); i++) {
             TextView textView = (TextView) ((LinearLayout) mLlTab.getChildAt(i)).getChildAt(0);
             View line = ((LinearLayout) mLlTab.getChildAt(i)).getChildAt(1);
-            if (i == position) {
+            if (i == checkPostion) {
                 textView.setTextColor(getResources().getColor(R.color.colorAccent));
                 line.setVisibility(View.VISIBLE);
             } else {
@@ -126,7 +185,7 @@ public class MessageListActivity extends JJsActivity {
                 line.setVisibility(View.INVISIBLE);
             }
         }
-        switch (position) {
+        switch (checkPostion) {
             case 0:
                 RetrofitUtils.getInstance()
                         .create(ApiService.Message.class)

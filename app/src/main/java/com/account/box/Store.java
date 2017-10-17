@@ -20,4 +20,8 @@ public class Store extends JJsStore {
         public static final int Protected = 1;
         public static final int Public = 2;
     }
+
+    public static class ResultCode {
+        public static final int Message = 101;
+    }
 }

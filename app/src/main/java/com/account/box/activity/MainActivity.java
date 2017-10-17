@@ -41,6 +41,7 @@ import android.widget.TextView;
 
 import com.account.box.APP;
 import com.account.box.R;
+import com.account.box.Store;
 import com.account.box.bean.AccountBean;
 import com.account.box.bean.GroupBean;
 import com.account.box.bean.RxResult;
@@ -264,12 +265,15 @@ public class MainActivity extends JJsActivity {
                 iv_delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                      /*  if (APP.getInstance().mLoginType > groupBean.getPasswordType()) {
-                            ToastUtils.showShort("无权限");
-                            return;
-                        }
-                        mGroupBeanDao.delete(groupBean);*/
-                        updateAccountList();
+                        RetrofitUtils.getInstance().create(ApiService.Account.class)
+                                .deleteGroup(APP.getInstance().mUserBean.getUser().getId(), groupBean.getId())
+                                .compose(RxSchedulers.getInstance(MainActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
+                                .subscribe(new RxObserver<String>() {
+                                    @Override
+                                    protected void _onSuccess(String s) {
+                                        updateAccountList();
+                                    }
+                                });
                     }
                 });
 
@@ -334,7 +338,7 @@ public class MainActivity extends JJsActivity {
                                                 //更新数据
                                                 RetrofitUtils.getInstance()
                                                         .create(ApiService.Account.class)
-                                                        .deleteAccount(groupBean.getAccounts().get(position).getId())
+                                                        .deleteAccount(APP.getInstance().mUserBean.getUser().getId(), groupBean.getAccounts().get(position).getId())
                                                         .compose(RxSchedulers.getInstance(MainActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
                                                         .subscribe(new RxObserver<String>() {
                                                             @Override
@@ -537,6 +541,9 @@ public class MainActivity extends JJsActivity {
 
                         }
                     });
+        }
+        if (i == Store.ResultCode.Message) {
+            updateAccountList();
         }
     }
 

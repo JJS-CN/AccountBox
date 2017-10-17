@@ -41,6 +41,11 @@ public class MessageBean {
         return type;
     }
 
+    public boolean isRead() {
+        //判断这条消息是否已经读取：0未读 1已读
+        return getType().equals("0") ? false : true;
+    }
+
     public void setType(String type) {
         this.type = type;
     }

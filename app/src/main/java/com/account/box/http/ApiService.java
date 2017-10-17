@@ -87,7 +87,14 @@ public class ApiService extends JJsApiService {
          */
         @POST("account/deleteAccount")
         @FormUrlEncoded
-        Observable<RxResult<String>> deleteAccount(@Field("accountId") String accountId);
+        Observable<RxResult<String>> deleteAccount(@Field("userId") String userId, @Field("accountId") String accountId);
+
+        /**
+         * 删除组
+         */
+        @POST("group/deleteGroupByCreator")
+        @FormUrlEncoded
+        Observable<RxResult<String>> deleteGroup(@Field("userId") String userId, @Field("groupId") String groupId);
 
     }
 
@@ -135,5 +142,26 @@ public class ApiService extends JJsApiService {
         @POST("message/inviteUserJoinGroup")
         @FormUrlEncoded
         Observable<RxResult<String>> inviteUserJoinGroup(@Field("sendUserId") String sendUserId, @Field("receiveUserName") String receiveUserName, @Field("groupId") String groupId);
+
+        /**
+         * 同意邀请
+         */
+        @POST("message/acceptInvite")
+        @FormUrlEncoded
+        Observable<RxResult<String>> acceptInvite(@Field("userId") String userId, @Field("messageId") String messageId);
+
+        /**
+         * 拒绝邀请
+         */
+        @POST("message/rejectInvite")
+        @FormUrlEncoded
+        Observable<RxResult<String>> rejectInvite(@Field("userId") String userId, @Field("messageId") String messageId);
+
+        /**
+         * 改变消息状态
+         */
+        @POST("message/changeMsgState")
+        @FormUrlEncoded
+        Observable<RxResult<String>> changeMsgState(@Field("userId") String userId, @Field("messageId") String messageId);
     }
 }
