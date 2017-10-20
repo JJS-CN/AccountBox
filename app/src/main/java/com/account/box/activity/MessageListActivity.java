@@ -96,7 +96,6 @@ public class MessageListActivity extends JJsActivity {
                         labelView.setBgColor(getResources().getColor(R.color.Red));
                         break;
                 }
-                quickHolder.setVisible(R.id.shape_check, !messageBean.isRead());
             }
         };
         mQuickAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {

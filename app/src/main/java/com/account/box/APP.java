@@ -41,7 +41,7 @@ public class APP extends MultiDexAPP {
         mApplication = this;
         //是否打开log开关
         Store.HTTP.URL_release = "http://119.29.238.157/api/";
-        Store.HTTP.URL_debug = "http://119.29.238.157/api/";
+        Store.HTTP.URL_debug = "https://sandbox.itunes.apple.com/";
         isDebug=true;
         //需要在super之前调用设置
         super.onCreate();
