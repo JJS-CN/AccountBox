@@ -18,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -63,6 +64,7 @@ import com.jjs.base.http.RxSchedulers;
 import com.jjs.base.utils.GlideUtils;
 import com.jjs.base.utils.recyclerview.QuickAdapter;
 import com.jjs.base.utils.recyclerview.QuickHolder;
+import com.jjs.base.widget.BaseDialogFragment;
 import com.rodolfonavalon.shaperipplelibrary.ShapeRipple;
 
 import java.io.File;
@@ -247,20 +249,63 @@ public class MainActivity extends JJsActivity {
                         mRv.scrollToPosition(quickHolder.getAdapterPosition());
                     }
                 });
-                //长按组 进行修改名字
                 groupName.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        /*if (APP.getInstance().mLoginType > groupBean.getPasswordType()) {
+                        BaseDialogFragment.getInstance(R.layout.dialog_share)
+                                .hasCancelable(true)
+                                .setInitViewListener(new BaseDialogFragment.OnInitViewListener() {
+                                    @Override
+                                    public void onInit(BaseDialogFragment.ViewHolder viewHolder) {
+                                        viewHolder.setClick(R.id.btn_cancel);
+                                        viewHolder.setClick(R.id.btn_check);
+                                    }
+                                })
+                                .setBaseClickListener(new BaseDialogFragment.OnBaseClickListener() {
+                                    @Override
+                                    public void onClick(final BaseDialogFragment.ViewHolder viewHolder, View view) {
+                                        switch (view.getId()) {
+                                            case R.id.btn_check:
+                                                TextInputEditText editText = viewHolder.getView(R.id.edit_shareName);
+                                                String shareName = editText.getText().toString().trim();
+                                                if (TextUtils.isEmpty(shareName)) {
+                                                    ToastUtils.showShort("分享名不能为空");
+                                                }
+                                                RetrofitUtils.getInstance().create(ApiService.Message.class)
+                                                        .inviteUserJoinGroup(APP.getInstance().mUserBean.getUser().getId(),shareName,groupBean.getId())
+                                                        .compose(RxSchedulers.getInstance(MainActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
+                                                        .subscribe(new RxObserver<String>() {
+                                                            @Override
+                                                            protected void _onSuccess(String s) {
+                                                                ToastUtils.showShort(s);
+                                                                viewHolder.dismiss();
+                                                            }
+                                                        });
+                                                break;
+                                            case R.id.btn_cancel:
+                                                viewHolder.dismiss();
+                                                break;
+                                        }
+                                    }
+                                })
+                                .show(getFragmentManager(), "share");
+                        return false;
+                    }
+                });
+                //长按组 进行修改名字
+                /*groupName.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        *//*if (APP.getInstance().mLoginType > groupBean.getPasswordType()) {
                             return true;
-                        }*/
+                        }*//*
                         groupName.setFocusable(true);
                         groupName.setFocusableInTouchMode(true);
                         iv_cancel.setVisibility(View.VISIBLE);
                         iv_save.setVisibility(View.VISIBLE);
                         return false;
                     }
-                });
+                });*/
                 //删除组 组内数据为空时才行
                 iv_delete.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -278,7 +323,7 @@ public class MainActivity extends JJsActivity {
                 });
 
                 //取消修改 组名
-                iv_cancel.setOnClickListener(new View.OnClickListener() {
+             /*   iv_cancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         groupName.setText(groupBean.getGroup_name());
@@ -303,7 +348,7 @@ public class MainActivity extends JJsActivity {
                         iv_cancel.setVisibility(View.INVISIBLE);
                         iv_save.setVisibility(View.INVISIBLE);
                     }
-                });
+                });*/
 
                 rv.setLayoutManager(new LinearLayoutManager(mContext));
                 QuickAdapter adapter = new QuickAdapter<AccountBean>(R.layout.recycler_account_details, groupBean.getAccounts()) {

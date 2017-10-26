@@ -12,13 +12,13 @@
         android:layout_height="wrap_content">
 
         <com.jjs.base.widget.ShapeView
-            android:layout_margin="10dp"
-            app:cornesRadius="10dp"
-            app:solidColor="@color/Red"
             android:id="@+id/shape_read"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:layout_margin="10dp"
+            app:cornesRadius="10dp"
+            app:solidColor="@color/Red"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,9 +29,11 @@
 
 
             <TextView
+                android:textStyle="bold"
                 android:id="@+id/tv_send"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
                 android:text="send"
                 android:textSize="12sp"/>
 
@@ -39,6 +41,7 @@
                 android:id="@+id/tv_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:text="time"
                 android:textSize="11sp"/>
 
@@ -55,7 +58,6 @@
             android:id="@+id/label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:alpha="0.5"
             app:lv_min_size="34dp"
             app:lv_padding="2dp"
             app:lv_text_size="8sp"/>

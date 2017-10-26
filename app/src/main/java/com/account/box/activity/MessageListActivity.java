@@ -54,8 +54,9 @@ public class MessageListActivity extends JJsActivity {
     @BindView(R.id.rv_message_list)
     RecyclerView mRvMessageList;
 
-
     List<MessageBean> mMessageList;
+    List<MessageBean> mMessageSendList;
+    List<MessageBean> mMessageReceiveList;
     QuickAdapter mQuickAdapter;
     int checkPostion = 0;
 
@@ -74,24 +75,26 @@ public class MessageListActivity extends JJsActivity {
     }
 
     private void initMessageList() {
-        mMessageList = new ArrayList<>();
-        mQuickAdapter = new QuickAdapter<MessageBean>(R.layout.recycler_message, mMessageList) {
+        mMessageSendList = new ArrayList<>();
+        mQuickAdapter = new QuickAdapter<MessageBean>(R.layout.recycler_message, mMessageSendList) {
             @Override
             public void _convert(QuickHolder quickHolder, MessageBean messageBean) {
                 quickHolder.setText(R.id.tv_send, messageBean.getSend_user_id());
-                quickHolder.setText(R.id.tv_time, messageBean.getTimeStr());
+                // quickHolder.setText(R.id.tv_time, messageBean.getTimeStr());
                 quickHolder.setText(R.id.tv_message, messageBean.getContent());
+                quickHolder.setVisible(R.id.shape_read, !messageBean.isRead() && checkPostion != 0);
                 LabelView labelView = quickHolder.getView(R.id.label);
-                switch (messageBean.getState()) {
-                    case "0":
-                        labelView.setText("待处理");
-                        labelView.setBgColor(getResources().getColor(R.color.Gold));
-                        break;
+                switch (messageBean.getType()) {
                     case "1":
-                        labelView.setText("已同意");
-                        labelView.setBgColor(getResources().getColor(R.color.Green));
+                        labelView.setText("待处理");
+                        labelView.setBgColor(getResources().getColor(R.color.Tan));
                         break;
                     case "2":
+                        labelView.setText("已同意");
+                        labelView.setBgColor(getResources().getColor(R.color.Green));
+
+                        break;
+                    case "3":
                         labelView.setText("被拒绝");
                         labelView.setBgColor(getResources().getColor(R.color.Red));
                         break;
@@ -101,8 +104,12 @@ public class MessageListActivity extends JJsActivity {
         mQuickAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, final int position) {
-                if (mMessageList.get(position).getState().equals("0") && APP.getInstance().mUserBean.getUser().getId().equals(mMessageList.get(position).getReceive_user_id())) {
-                    //表示未读
+                if (checkPostion == 0) {
+                    mMessageList = mMessageSendList;
+                } else {
+                    mMessageList = mMessageReceiveList;
+                }
+                if (mMessageList.get(position).getType().equals("1") && APP.getInstance().mUserBean.getUser().getId().equals(mMessageList.get(position).getReceive_user_id())) {
                     new AlertDialog.Builder(MessageListActivity.this)
                             .setTitle("是否同意这个邀请")
                             .setMessage("用户：" + mMessageList.get(position).getSend_user_id() + "\n" + mMessageList.get(position).getContent())
@@ -115,7 +122,7 @@ public class MessageListActivity extends JJsActivity {
                                             .subscribe(new RxObserver<String>() {
                                                 @Override
                                                 protected void _onSuccess(String s) {
-                                                    checkPosition();
+                                                    getMessageDataList();
                                                     setResult(Store.TAG.RESULT_OK);
                                                     dialog.dismiss();
                                                 }
@@ -131,19 +138,22 @@ public class MessageListActivity extends JJsActivity {
                                             .subscribe(new RxObserver<String>() {
                                                 @Override
                                                 protected void _onSuccess(String s) {
-                                                    checkPosition();
+                                                    getMessageDataList();
                                                     dialog.dismiss();
                                                 }
                                             });
                                 }
                             }).create().show();
+                }
+                if (mMessageList.get(position).getState().equals("0") && APP.getInstance().mUserBean.getUser().getId().equals(mMessageList.get(position).getReceive_user_id())) {
+                    //表示未读
                     RetrofitUtils.getInstance().create(ApiService.Message.class)
                             .changeMsgState(APP.getInstance().mUserBean.getUser().getId(), mMessageList.get(position).getId())
                             .compose(RxSchedulers.getInstance(MessageListActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
                             .subscribe(new RxObserver<String>() {
                                 @Override
                                 protected void _onSuccess(String s) {
-                                    checkPosition();
+                                    getMessageDataList();
                                 }
                             });
                 }
@@ -151,6 +161,7 @@ public class MessageListActivity extends JJsActivity {
         });
         mRvMessageList.setLayoutManager(new LinearLayoutManager(this));
         mRvMessageList.setAdapter(mQuickAdapter);
+        getMessageDataList();
     }
 
     @Override
@@ -164,10 +175,20 @@ public class MessageListActivity extends JJsActivity {
             case R.id.ll_send:
                 checkPostion = 0;
                 checkPosition();
+                if (mMessageSendList != null) {
+                    mQuickAdapter.setNewData(mMessageSendList);
+                } else {
+                    getMessageDataList();
+                }
                 break;
             case R.id.ll_receive:
                 checkPostion = 1;
                 checkPosition();
+                if (mMessageReceiveList != null) {
+                    mQuickAdapter.setNewData(mMessageReceiveList);
+                } else {
+                    getMessageDataList();
+                }
                 break;
         }
     }
@@ -184,6 +205,10 @@ public class MessageListActivity extends JJsActivity {
                 line.setVisibility(View.INVISIBLE);
             }
         }
+
+    }
+
+    private void getMessageDataList() {
         switch (checkPostion) {
             case 0:
                 RetrofitUtils.getInstance()
@@ -193,7 +218,7 @@ public class MessageListActivity extends JJsActivity {
                         .subscribe(new RxObserver<List<MessageBean>>() {
                             @Override
                             protected void _onSuccess(List<MessageBean> messageBeen) {
-                                mMessageList = messageBeen;
+                                mMessageSendList = messageBeen;
                                 mQuickAdapter.setNewData(messageBeen);
                             }
                         });
@@ -206,7 +231,7 @@ public class MessageListActivity extends JJsActivity {
                         .subscribe(new RxObserver<List<MessageBean>>() {
                             @Override
                             protected void _onSuccess(List<MessageBean> messageBeen) {
-                                mMessageList = messageBeen;
+                                mMessageReceiveList = messageBeen;
                                 mQuickAdapter.setNewData(messageBeen);
                             }
                         });

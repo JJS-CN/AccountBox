@@ -20,6 +20,8 @@ import com.taobao.sophix.listener.PatchLoadStatusListener;
 
 import java.io.File;
 
+import cn.jpush.android.api.JPushInterface;
+
 /**
  * 说明：
  * Created by aa on 2017/8/8.
@@ -41,7 +43,7 @@ public class APP extends MultiDexAPP {
         mApplication = this;
         //是否打开log开关
         Store.HTTP.URL_release = "http://119.29.238.157/api/";
-        Store.HTTP.URL_debug = "https://sandbox.itunes.apple.com/";
+        Store.HTTP.URL_debug = "http://119.29.238.157/api/";
         isDebug=true;
         //需要在super之前调用设置
         super.onCreate();
@@ -51,6 +53,9 @@ public class APP extends MultiDexAPP {
         }
         SophixManager.getInstance().queryAndLoadNewPatch();
         initActLifecycle();
+        JPushInterface.setDebugMode(true);
+        JPushInterface.init(this);
+
     }
 
     @Override

@@ -21,12 +21,12 @@ public class MessageBean {
      */
 
     private String id;
-    private String type;
+    private String type;//邀请状态  1邀请加入  2同意  3不同意
     private String send_user_id;//发送人id
     private String receive_user_id;//接收人id
     private String content;//邀请说明
     private String group_id;//邀请分组id
-    private String state;//邀请状态
+    private String state;//是否已读，0未读  1已读
     private String time;//时间
 
     public String getId() {
@@ -43,7 +43,7 @@ public class MessageBean {
 
     public boolean isRead() {
         //判断这条消息是否已经读取：0未读 1已读
-        return getType().equals("0") ? false : true;
+        return getState().equals("0") ? false : true;
     }
 
     public void setType(String type) {
