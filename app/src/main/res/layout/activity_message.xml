@@ -9,13 +9,13 @@
     <LinearLayout
         android:id="@+id/ll_tab"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="38dp"
         android:orientation="horizontal">
 
         <LinearLayout
             android:id="@+id/ll_send"
             android:layout_width="0dp"
-            android:layout_height="30dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
@@ -39,7 +39,7 @@
         <LinearLayout
             android:id="@+id/ll_receive"
             android:layout_width="0dp"
-            android:layout_height="30dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">

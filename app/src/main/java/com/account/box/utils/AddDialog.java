@@ -223,7 +223,7 @@ public class AddDialog extends Dialog {
                 if (accountBean == null) {
                     //先判断是否有重复的，再进行添加操作！！！
                     RetrofitUtils.getInstance().create(ApiService.Account.class)
-                            .addAccountToGroup(checkListBean.getId(), accountTitle, accountName, accountPwd, accountMsg)
+                            .addAccountToGroup(APP.getInstance().mUserBean.getUser().getId(), checkListBean.getId(), accountTitle, accountName, accountPwd, accountMsg)
                             .compose(RxSchedulers.getInstance(mContext.bindToLifecycle()).showLoading(true).<RxResult<String>>io_main())
                             .subscribe(new RxObserver<String>() {
                                 @Override

@@ -1,6 +1,7 @@
 package com.account.box.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -65,12 +66,22 @@ public class MessageListActivity extends JJsActivity {
         activity.startActivityForResult(intent, Store.ResultCode.Message);
     }
 
+    public static void openReceive(Context context) {
+        Intent intent = new Intent(context, MessageListActivity.class);
+        intent.putExtra("openReceive", true);
+        context.startActivity(intent);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
         ButterKnife.bind(this);
         ToolUtils.initTool(this, mTool, "消息", true);
+        boolean openReceive = getIntent().getBooleanExtra("openReceive", false);
+        if (openReceive) {
+            checkPostion = 1;
+        }
         initMessageList();
     }
 

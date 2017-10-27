@@ -32,7 +32,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
     public void sendSms(String phone) {
     }
 
-    public void login(String name, String pwd, String imei) {
+    public void login(final String name, String pwd, String imei) {
        /* UserBean userBean = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
                 .where(UserBeanDao.Properties.Username.eq(name))
                 .build().unique();*/
@@ -51,6 +51,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
                 .subscribe(new RxObserver<UserBean>() {
                     @Override
                     protected void _onSuccess(UserBean userBean) {
+                        SPUtils.getInstance().put("username", name);
                         APP.getInstance().mUserBean = userBean;
                         mView.userBeanSuccess();
                     }

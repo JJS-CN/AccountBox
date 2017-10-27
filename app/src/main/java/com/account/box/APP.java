@@ -30,13 +30,9 @@ import cn.jpush.android.api.JPushInterface;
 public class APP extends MultiDexAPP {
     //APK的下载地址，使用github的地址
     public String apkUrl = "https://raw.githubusercontent.com/JJS-CN/AccountBox/master/app/AccountBox.apk";
-    //自定义数据库保存位置
-    private String sdPath = SDCardUtils.getSDCardPath() + File.separator + "accountBox";
 
     private static APP mApplication;
     public UserBean mUserBean;//用户数据
-    public String passwordSuper = "jjs";//超级密码
-    public int mLoginType = Store.Password.Public;//登录类型
 
     @Override
     public void onCreate() {
@@ -44,7 +40,7 @@ public class APP extends MultiDexAPP {
         //是否打开log开关
         Store.HTTP.URL_release = "http://119.29.238.157/api/";
         Store.HTTP.URL_debug = "http://119.29.238.157/api/";
-        isDebug=true;
+        isDebug=false;
         //需要在super之前调用设置
         super.onCreate();
         if (!isDebug) {

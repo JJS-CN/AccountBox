@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -25,17 +26,18 @@ import android.support.v4.util.Pair;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -52,6 +54,7 @@ import com.account.box.utils.AddDialog;
 import com.account.box.utils.GlideApp;
 import com.account.box.utils.StatusBarUtils;
 import com.blankj.utilcode.util.AppUtils;
+import com.blankj.utilcode.util.ConvertUtils;
 import com.blankj.utilcode.util.ImageUtils;
 import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.SPUtils;
@@ -68,10 +71,12 @@ import com.jjs.base.widget.BaseDialogFragment;
 import com.rodolfonavalon.shaperipplelibrary.ShapeRipple;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import cn.jpush.android.api.JPushInterface;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -143,6 +148,7 @@ public class MainActivity extends JJsActivity {
         initToolBar();
         initRecycler();
         initNavigation();
+        initJPush();
 
         updateAccountList();//执行查询操作
 
@@ -150,9 +156,6 @@ public class MainActivity extends JJsActivity {
 
         mRipple.setEnableRandomColor(true);
         mRipple.setEnableRandomPosition(true);
-        if (APP.getInstance().mLoginType != 0) {
-            //mIvFloat.hide();
-        }
 
         //创建广播
         innerReceiver = new InnerRecevier();
@@ -161,6 +164,11 @@ public class MainActivity extends JJsActivity {
         //启动广播
         registerReceiver(innerReceiver, intentFilter);
 
+    }
+
+    private void initJPush() {
+        Log.e("alias", APP.getInstance().mUserBean.getUser().getId());
+        JPushInterface.setAlias(this, 1, APP.getInstance().mUserBean.getUser().getId());
     }
 
     @Override
@@ -190,19 +198,15 @@ public class MainActivity extends JJsActivity {
             @Override
             public void _convert(final QuickHolder quickHolder, final GroupBean groupBean) {
                 //需要重置更新后的数据，否则查看不了
+                CardView cardGroupName = quickHolder.getView(R.id.card_group_name);//组bg
+                TextView groupName = quickHolder.getView(R.id.tv_group_name);//组名
+                TextView shareName = quickHolder.getView(R.id.tv_share_name);//分享人名称
+                final RecyclerView rv = quickHolder.getView(R.id.rv_account_list);//账号列表
+                View iv_delete = quickHolder.getView(R.id.iv_delete);//组删除
+                final View iv_more = quickHolder.getView(R.id.iv_more);//组更多箭头
+                View iv_share = quickHolder.getView(R.id.iv_share);//组分享
+                View iv_share_delete = quickHolder.getView(R.id.iv_not_share);//取消分享
 
-                final EditText groupName = quickHolder.getView(R.id.tv_group_name);
-                final RecyclerView rv = quickHolder.getView(R.id.rv_account_list);
-                View iv_delete = quickHolder.getView(R.id.iv_delete);
-                final View iv_more = quickHolder.getView(R.id.iv_more);
-                final View iv_cancel = quickHolder.getView(R.id.iv_cancel);
-                final View iv_save = quickHolder.getView(R.id.iv_save);
-               /* //设置默认初始值
-                if (APP.getInstance().mLoginType > groupBean.getPasswordType()) {
-                    groupName.setText("无权限");
-                } else {
-                    groupName.setText(groupBean.getName());
-                }*/
                 groupName.setText(groupBean.getGroup_name());
                 if (groupBean.getAccounts() == null || groupBean.getAccounts().size() == 0) {
                     iv_delete.setVisibility(View.VISIBLE);
@@ -210,6 +214,17 @@ public class MainActivity extends JJsActivity {
                 } else {
                     iv_delete.setVisibility(View.INVISIBLE);
                     iv_more.setVisibility(View.VISIBLE);
+                }
+                if (groupBean.getOwner_id().equals(APP.getInstance().mUserBean.getUser().getId())) {
+                    iv_share.setVisibility(View.VISIBLE);
+                    shareName.setVisibility(View.GONE);
+                    iv_share_delete.setVisibility(View.INVISIBLE);
+                } else {
+                    iv_share.setVisibility(View.INVISIBLE);
+                    iv_delete.setVisibility(View.INVISIBLE);
+                    shareName.setVisibility(View.VISIBLE);
+                    iv_share_delete.setVisibility(View.VISIBLE);
+                    shareName.setText("(分享来自：" + groupBean.getOwner_id() + ")");
                 }
                 //设置list是否展示，且控制箭头方向
                 if (groupBean.isOpen()) {
@@ -219,10 +234,9 @@ public class MainActivity extends JJsActivity {
                     rv.setVisibility(View.GONE);
                     iv_more.setRotation(0);
                 }
-
-                groupName.setBackgroundColor(TitleColors[quickHolder.getAdapterPosition() % 10]);
                 //点击组 切换list显示
-                groupName.setOnClickListener(new View.OnClickListener() {
+                cardGroupName.setBackgroundColor(TitleColors[quickHolder.getAdapterPosition() % 10]);
+                cardGroupName.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         groupBean.setOpen(!groupBean.isOpen());
@@ -249,9 +263,10 @@ public class MainActivity extends JJsActivity {
                         mRv.scrollToPosition(quickHolder.getAdapterPosition());
                     }
                 });
-                groupName.setOnLongClickListener(new View.OnLongClickListener() {
+                //分享
+                iv_share.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public boolean onLongClick(View v) {
+                    public void onClick(View v) {
                         BaseDialogFragment.getInstance(R.layout.dialog_share)
                                 .hasCancelable(true)
                                 .setInitViewListener(new BaseDialogFragment.OnInitViewListener() {
@@ -272,7 +287,7 @@ public class MainActivity extends JJsActivity {
                                                     ToastUtils.showShort("分享名不能为空");
                                                 }
                                                 RetrofitUtils.getInstance().create(ApiService.Message.class)
-                                                        .inviteUserJoinGroup(APP.getInstance().mUserBean.getUser().getId(),shareName,groupBean.getId())
+                                                        .inviteUserJoinGroup(APP.getInstance().mUserBean.getUser().getId(), shareName, groupBean.getId())
                                                         .compose(RxSchedulers.getInstance(MainActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
                                                         .subscribe(new RxObserver<String>() {
                                                             @Override
@@ -289,23 +304,8 @@ public class MainActivity extends JJsActivity {
                                     }
                                 })
                                 .show(getFragmentManager(), "share");
-                        return false;
                     }
                 });
-                //长按组 进行修改名字
-                /*groupName.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        *//*if (APP.getInstance().mLoginType > groupBean.getPasswordType()) {
-                            return true;
-                        }*//*
-                        groupName.setFocusable(true);
-                        groupName.setFocusableInTouchMode(true);
-                        iv_cancel.setVisibility(View.VISIBLE);
-                        iv_save.setVisibility(View.VISIBLE);
-                        return false;
-                    }
-                });*/
                 //删除组 组内数据为空时才行
                 iv_delete.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -316,39 +316,28 @@ public class MainActivity extends JJsActivity {
                                 .subscribe(new RxObserver<String>() {
                                     @Override
                                     protected void _onSuccess(String s) {
+                                        ToastUtils.showShort(s);
                                         updateAccountList();
                                     }
                                 });
                     }
                 });
-
-                //取消修改 组名
-             /*   iv_cancel.setOnClickListener(new View.OnClickListener() {
+                //取消分享
+                iv_share_delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        groupName.setText(groupBean.getGroup_name());
-                        groupName.setFocusable(false);
-                        groupName.setFocusableInTouchMode(false);
-                        iv_cancel.setVisibility(View.INVISIBLE);
-                        iv_save.setVisibility(View.INVISIBLE);
+                        RetrofitUtils.getInstance().create(ApiService.Account.class)
+                                .exitGroup(APP.getInstance().mUserBean.getUser().getId(), groupBean.getId())
+                                .compose(RxSchedulers.getInstance(MainActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
+                                .subscribe(new RxObserver<String>() {
+                                    @Override
+                                    protected void _onSuccess(String s) {
+                                        ToastUtils.showShort(s);
+                                        updateAccountList();
+                                    }
+                                });
                     }
                 });
-                //修改保存 组名
-                iv_save.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (TextUtils.isEmpty(groupName.getText().toString())) {
-                            ToastUtils.showShort("不能为空！");
-                            return;
-                        }
-                        groupBean.setGroup_name(groupName.getText().toString());
-                        // mGroupBeanDao.update(groupBean);
-                        groupName.setFocusable(false);
-                        groupName.setFocusableInTouchMode(false);
-                        iv_cancel.setVisibility(View.INVISIBLE);
-                        iv_save.setVisibility(View.INVISIBLE);
-                    }
-                });*/
 
                 rv.setLayoutManager(new LinearLayoutManager(mContext));
                 QuickAdapter adapter = new QuickAdapter<AccountBean>(R.layout.recycler_account_details, groupBean.getAccounts()) {
@@ -358,10 +347,25 @@ public class MainActivity extends JJsActivity {
                         quickHolder.setText(R.id.tv_account_title, accountBean.getTitle());
                         quickHolder.setText(R.id.tv_account_name, "账号：" + accountBean.getAccount_name());
                         quickHolder.setText(R.id.tv_account_password, "密码：" + accountBean.getPassword());
-                        quickHolder.setText(R.id.read_account_message, "说明：" + accountBean.getRemark());
+                        if (TextUtils.isEmpty(accountBean.getRemark())) {
+                            quickHolder.setText(R.id.read_account_message, "");
+                        } else {
+                            quickHolder.setText(R.id.read_account_message, "备注:" + accountBean.getRemark());
+                        }
+
                         quickHolder.addOnClickListener(R.id.iv_update);
                         quickHolder.addOnClickListener(R.id.iv_delete);
                         //非管理员无权删除
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            quickHolder.itemView.setZ(-quickHolder.getAdapterPosition() * 4);
+                            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) quickHolder.itemView.getLayoutParams();
+                            params.setMargins(ConvertUtils.dp2px((5 - Math.abs(quickHolder.getAdapterPosition() % 10 - 4)) * 3), ConvertUtils.dp2px(quickHolder.getAdapterPosition() == 0 ? -10 : -15), 0, 0);
+                            quickHolder.itemView.setLayoutParams(params);
+                        } else {
+                            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) quickHolder.itemView.getLayoutParams();
+                            params.setMargins(ConvertUtils.dp2px((5 - Math.abs(quickHolder.getAdapterPosition() % 10 - 4)) * 3), 0, 0, 0);
+                            quickHolder.itemView.setLayoutParams(params);
+                        }
 
                     }
                 };
@@ -512,6 +516,7 @@ public class MainActivity extends JJsActivity {
                 .subscribe(new RxObserver<List<GroupBean>>() {
                     @Override
                     protected void _onSuccess(List<GroupBean> groupBeen) {
+                        Collections.sort(groupBeen);
                         mGroupBeanList = groupBeen;
                         mQuickAdapter.setNewData(mGroupBeanList);
                         startRipple();

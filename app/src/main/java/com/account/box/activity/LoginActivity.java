@@ -81,6 +81,20 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
         if (avatarFile.exists()) {
             GlideApp.with(LoginActivity.this).load(avatarFile).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(ivAvatar);
         }
+
+        if (APP.isDebug){
+            TelephonyManager TelephonyMgr = (TelephonyManager) LoginActivity.this.getSystemService(TELEPHONY_SERVICE);
+            String imei = "";
+            try {
+                imei = TelephonyMgr.getDeviceId();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            mPersenter.login("111", "111", imei);
+        }
+
+
+
         //监听焦点变化改变图片颜色
         editUserAccount.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override

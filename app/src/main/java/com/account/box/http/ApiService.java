@@ -25,7 +25,7 @@ import retrofit2.http.Part;
  */
 
 public class ApiService extends JJsApiService {
-    public interface Test{
+    public interface Test {
         //receipt-data
         @POST("verifyReceipt")
         Observable<RxResult<UserBean>> appleTest(@Body RequestBody requestBody);
@@ -74,7 +74,7 @@ public class ApiService extends JJsApiService {
          */
         @POST("account/addAccountToGroup")
         @FormUrlEncoded
-        Observable<RxResult<String>> addAccountToGroup(@Field("groupId") String groupId, @Field("title") String title, @Field("accountName") String accountName, @Field("password") String password, @Field("remark") String remark);
+        Observable<RxResult<String>> addAccountToGroup(@Field("userId") String userId, @Field("groupId") String groupId, @Field("title") String title, @Field("accountName") String accountName, @Field("password") String password, @Field("remark") String remark);
 
         /**
          * 更新账号
@@ -104,6 +104,12 @@ public class ApiService extends JJsApiService {
         @FormUrlEncoded
         Observable<RxResult<String>> deleteGroup(@Field("userId") String userId, @Field("groupId") String groupId);
 
+        /**
+         * 退出组
+         */
+        @POST("group/exitGroup")
+        @FormUrlEncoded
+        Observable<RxResult<String>> exitGroup(@Field("userId") String userId, @Field("groupId") String groupId);
     }
 
     public interface User {

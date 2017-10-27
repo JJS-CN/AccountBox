@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.account.box.activity.MessageListActivity;
 import com.blankj.utilcode.util.LogUtils;
 
 import cn.jpush.android.api.JPushInterface;
@@ -50,9 +51,7 @@ public class JPushReceiver extends BroadcastReceiver {
         } else if (JPushInterface.ACTION_NOTIFICATION_OPENED.equals(intent.getAction())) {
             Log.d("JPushReceiver", "用户点击打开了通知");
             // 在这里可以自己写代码去定义用户点击后的行为
-           /* Intent i = new Intent(context, TestActivity.class);  //自定义打开的界面
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);*/
+            MessageListActivity.openReceive(context);
         } else {
             Log.d("JPushReceiver", "Unhandled intent - " + intent.getAction());
         }

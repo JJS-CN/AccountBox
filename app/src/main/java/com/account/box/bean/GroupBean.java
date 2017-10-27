@@ -1,12 +1,16 @@
 package com.account.box.bean;
 
+import android.support.annotation.NonNull;
+
+import com.account.box.APP;
+
 import java.util.List;
 
 /**
  * 说明：
  * Created by Administrator on 2017/8/26.
  */
-public class GroupBean {
+public class GroupBean implements Comparable<GroupBean> {
     private String id;
     private String owner_id;
     private String group_name;
@@ -61,5 +65,14 @@ public class GroupBean {
                 ", group_name='" + group_name + '\'' +
                 ", accounts=" + accounts +
                 '}';
+    }
+
+    @Override
+    public int compareTo(@NonNull GroupBean o) {
+        if (o.getOwner_id().equals(APP.getInstance().mUserBean.getUser().getId())) {
+            return 0;
+        } else {
+            return -1;
+        }
     }
 }
