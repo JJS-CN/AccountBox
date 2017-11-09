@@ -36,7 +36,6 @@ public class APP extends BaseApplication {
 
     @Override
     public void onCreate() {
-
         mApplication = this;
         //需要在super之前调用设置
         super.onCreate();
@@ -51,7 +50,7 @@ public class APP extends BaseApplication {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        initDebug(true,"http://119.29.238.157/api/","http://119.29.238.157/api/");
+        initDebug(false,"http://119.29.238.157/api/","http://119.29.238.157/api/");
         SophixManager.getInstance()
                 .setContext(this)
                 .setAppVersion(BuildConfig.VERSION_NAME)
