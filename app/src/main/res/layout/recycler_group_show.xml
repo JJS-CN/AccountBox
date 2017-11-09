@@ -16,9 +16,9 @@
         app:cardElevation="5dp">
 
         <RelativeLayout
-            android:minHeight="33dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:minHeight="33dp">
 
             <TextView
                 android:id="@+id/tv_group_name"
@@ -29,6 +29,17 @@
                 android:paddingTop="8dp"
                 android:text="标题Title"
                 android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/tv_accountCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/tv_group_name"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@id/tv_group_name"
+                android:text=""
+                android:textColor="@color/accent"
+                android:textSize="10sp"/>
 
             <TextView
                 android:id="@+id/tv_share_name"

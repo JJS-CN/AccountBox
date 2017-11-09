@@ -59,9 +59,8 @@ import com.blankj.utilcode.util.ImageUtils;
 import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.jjs.base.JJsActivity;
+import com.jjs.base.base.BaseActivity;
 import com.jjs.base.http.RetrofitUtils;
 import com.jjs.base.http.RxSchedulers;
 import com.jjs.base.utils.GlideUtils;
@@ -82,7 +81,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
 
-public class MainActivity extends JJsActivity {
+public class MainActivity extends BaseActivity {
     @BindView(R.id.tool)
     Toolbar mTool;
     @BindView(R.id.iv_avatar)
@@ -200,6 +199,7 @@ public class MainActivity extends JJsActivity {
                 //需要重置更新后的数据，否则查看不了
                 CardView cardGroupName = quickHolder.getView(R.id.card_group_name);//组bg
                 TextView groupName = quickHolder.getView(R.id.tv_group_name);//组名
+                TextView accountCount = quickHolder.getView(R.id.tv_accountCount);//账号数量
                 TextView shareName = quickHolder.getView(R.id.tv_share_name);//分享人名称
                 final RecyclerView rv = quickHolder.getView(R.id.rv_account_list);//账号列表
                 View iv_delete = quickHolder.getView(R.id.iv_delete);//组删除
@@ -207,13 +207,16 @@ public class MainActivity extends JJsActivity {
                 View iv_share = quickHolder.getView(R.id.iv_share);//组分享
                 View iv_share_delete = quickHolder.getView(R.id.iv_not_share);//取消分享
 
+
                 groupName.setText(groupBean.getGroup_name());
                 if (groupBean.getAccounts() == null || groupBean.getAccounts().size() == 0) {
                     iv_delete.setVisibility(View.VISIBLE);
                     iv_more.setVisibility(View.INVISIBLE);
+                    accountCount.setText("");
                 } else {
                     iv_delete.setVisibility(View.INVISIBLE);
                     iv_more.setVisibility(View.VISIBLE);
+                    accountCount.setText("->" + groupBean.getAccounts().size());
                 }
                 if (groupBean.getOwner_id().equals(APP.getInstance().mUserBean.getUser().getId())) {
                     iv_share.setVisibility(View.VISIBLE);
@@ -428,8 +431,18 @@ public class MainActivity extends JJsActivity {
         mTvVersion.setText("Version：" + AppUtils.getAppVersionName());
         mIvHeadBg.setImageBitmap(ImageUtils.fastBlur(BitmapFactory.decodeResource(getResources(), R.drawable.c1), 0.2f, 25));
         mTvUserName.setText(APP.getInstance().mUserBean.getUser().getAccount());
-        GlideApp.with(this).load(APP.getInstance().mUserBean.getUser().getHead_path()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvAvatar);
-        GlideApp.with(this).load(APP.getInstance().mUserBean.getUser().getHead_path()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvHeadAvatar);
+        //头像
+        String headPath = APP.getInstance().mUserBean.getUser().getHead_path();
+        if (!TextUtils.isEmpty(headPath)) {
+            GlideApp.with(this).load(headPath).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvAvatar);
+            GlideApp.with(this).load(headPath).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvHeadAvatar);
+        }
+        headView.findViewById(R.id.ll_skill).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                H5Activity.open(MainActivity.this, H5Activity.Skill);
+            }
+        });
         mIvHeadAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -471,14 +484,14 @@ public class MainActivity extends JJsActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.navigation_item_setting:
-                        SettingActivity.open(MainActivity.this);
-                        break;
                     case R.id.navigation_item_message:
                         MessageListActivity.open(MainActivity.this);
                         break;
+                    case R.id.navigation_item_setting:
+                        SettingActivity.open(MainActivity.this);
+                        break;
                     case R.id.navigation_item_about:
-                        AboutActivity.open(MainActivity.this);
+                        H5Activity.open(MainActivity.this, H5Activity.About);
                         break;
                     case R.id.navigation_item_loginOut:
                         SPUtils.getInstance().remove("password");
@@ -586,8 +599,8 @@ public class MainActivity extends JJsActivity {
                     .subscribe(new RxObserver<String>() {
                         @Override
                         protected void _onSuccess(String s) {
-                            GlideApp.with(MainActivity.this).load(avatarFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvAvatar);
-                            GlideApp.with(MainActivity.this).load(avatarFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvHeadAvatar);
+                            GlideApp.with(MainActivity.this).load(avatarFile).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvAvatar);
+                            GlideApp.with(MainActivity.this).load(avatarFile).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(mIvHeadAvatar);
 
                         }
                     });

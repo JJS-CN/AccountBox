@@ -5,7 +5,6 @@ import com.account.box.bean.GroupBean;
 import com.account.box.bean.MessageBean;
 import com.account.box.bean.RxResult;
 import com.account.box.bean.UserBean;
-import com.jjs.base.http.JJsApiService;
 
 import java.util.List;
 
@@ -24,11 +23,14 @@ import retrofit2.http.Part;
  * Created by aa on 2017/8/15.
  */
 
-public class ApiService extends JJsApiService {
+public class ApiService  {
     public interface Test {
         //receipt-data
         @POST("verifyReceipt")
         Observable<RxResult<UserBean>> appleTest(@Body RequestBody requestBody);
+        @POST("intf/getData.do")
+        @FormUrlEncoded
+        Observable<RxResult<String>> test2(@Field("sign")String sign,@Field("data")String data);
     }
 
     public interface Login {
@@ -45,20 +47,6 @@ public class ApiService extends JJsApiService {
         @POST("user/register")
         @FormUrlEncoded
         Observable<RxResult<String>> register(@Field("account") String account, @Field("password") String pwd);
-
-        /**
-         * 修改密码
-         */
-        @POST("resetPwd")
-        @FormUrlEncoded
-        Observable<RxResult<UserBean>> resetPwd(@Field("phone") String phone, @Field("password") String pwd);
-
-        /**
-         * 发送验证码
-         */
-        @POST("sendSMS")
-        @FormUrlEncoded
-        Observable<RxResult<String>> sendSMS(@Field("phone") String phone);
     }
 
     public interface Account {

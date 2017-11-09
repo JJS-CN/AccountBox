@@ -15,7 +15,7 @@ import org.greenrobot.greendao.annotation.NotNull;
 
 public class ToolUtils {
     public static void initTool(final AppCompatActivity activity, @NotNull Toolbar toolbar, @NotNull String title, boolean hasBack) {
-        toolbar.setTitle(title);
+        toolbar.setSubtitle(title);
         activity.setSupportActionBar(toolbar);
         if (hasBack) {
             toolbar.setNavigationIcon(R.drawable.ic_back);

@@ -57,7 +57,7 @@
         <activity android:name=".activity.RegisterActivity"/>
         <activity android:name=".activity.MainActivity"/>
         <activity android:name=".activity.ResetPwdActivity"/>
-        <activity android:name=".activity.AboutActivity"/>
+        <activity android:name=".activity.H5Activity"/>
         <activity android:name=".activity.SettingActivity"/>
         <activity android:name=".activity.MessageListActivity"/>
 

@@ -1,14 +1,14 @@
 package com.account.box;
 
 
-import com.jjs.base.JJsStore;
+import com.jjs.base.base.BaseStore;
 
 /**
  * 说明：
  * Created by aa on 2017/8/15.
  */
 
-public class Store extends JJsStore {
+public class Store extends BaseStore {
     public static class Login {
         public static String isLogin = "isLogin";
         public static int openRegisterCode = 1;

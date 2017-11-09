@@ -2,14 +2,14 @@ package com.account.box.http;
 
 import com.account.box.bean.RxResult;
 import com.blankj.utilcode.util.ToastUtils;
-import com.jjs.base.http.JJsObserver;
+import com.jjs.base.http.BaseObserver;
 
 /**
  * 说明：
  * Created by aa on 2017/10/9.
  */
 
-public abstract class RxObserver<T> extends JJsObserver<RxResult<T>> {
+public abstract class RxObserver<T> extends BaseObserver<RxResult<T>> {
     @Override
     protected void _onNext(RxResult<T> data) {
         if (data.isSuccess()) {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#3F51B5</color>
-    <color name="colorAccent">#FF6081</color>
+    <color name="colorPrimary">#4F50ee</color>
+    <color name="colorPrimaryDark">#4F50ee</color>
+    <color name="colorAccent">#ff7081</color>
     <color name="colorActivityBG">#eeeeee</color>
     <color name="colorBtn">#ff6090</color>
     <color name="colorGray">#666666</color>

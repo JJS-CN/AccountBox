@@ -11,24 +11,23 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.account.box.APP;
 import com.account.box.R;
 import com.account.box.Store;
 import com.account.box.activity.persenter.LoginPersenter;
 import com.account.box.activity.view.LoginView;
 import com.account.box.utils.GlideApp;
+import com.account.box.utils.ToolUtils;
 import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.jjs.base.JJsActivity;
+import com.jjs.base.base.BaseActivity;
 import com.jjs.base.utils.GlideUtils;
-
-import java.io.File;
+import com.jjs.base.widget.LoadingDialog;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -38,7 +37,7 @@ import butterknife.OnClick;
  * Created by aa on 2017/8/10.
  */
 
-public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginView {
+public class LoginActivity extends BaseActivity<LoginPersenter> implements LoginView {
 
     @BindView(R.id.tool)
     Toolbar mTool;
@@ -71,29 +70,11 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mPersenter = new LoginPersenter(this);
+        hasExitDouble();
 
         //设置toolbar
-        mTool.setSubtitle("登陆");
         mTool.setNavigationIcon(R.drawable.nulls);
-        setSupportActionBar(mTool);
-        editUserAccount.setText(SPUtils.getInstance().getString("username"));
-        File avatarFile = new File(APP.getInstance().getAvatarFile(), SPUtils.getInstance().getString("username") + ".jpg");
-        if (avatarFile.exists()) {
-            GlideApp.with(LoginActivity.this).load(avatarFile).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(ivAvatar);
-        }
-
-        if (APP.isDebug){
-            TelephonyManager TelephonyMgr = (TelephonyManager) LoginActivity.this.getSystemService(TELEPHONY_SERVICE);
-            String imei = "";
-            try {
-                imei = TelephonyMgr.getDeviceId();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            mPersenter.login("111", "111", imei);
-        }
-
-
+        ToolUtils.initTool(this, mTool, "登录", false);
 
         //监听焦点变化改变图片颜色
         editUserAccount.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -157,18 +138,21 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
             @Override
             public void afterTextChanged(Editable s) {
                 if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    if (s.toString().length() > 0) {
-                        //有数据时，查询本地保存头像，有头像时动态修改avatar内容进行展示，类QQ
-                        File avatarFile = new File(APP.getInstance().getAvatarFile(), s.toString() + ".jpg");
-                        if (avatarFile.exists()) {
-                            GlideApp.with(LoginActivity.this).load(avatarFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(ivAvatar);
-                        } else {
-                            ivAvatar.setImageResource(R.drawable.bili_default_avatar);
+                    if (s.toString().trim().length() > 0) {
+                        if (!TextUtils.isEmpty(s.toString().trim())) {
+                            String avatar = SPUtils.getInstance().getString(s.toString().trim() + "avatar");
+                            if (!TextUtils.isEmpty(avatar)) {
+                                GlideApp.with(LoginActivity.this).load(avatar).transform(new GlideUtils.CircleTransform()).error(R.drawable.main_default_avatar).into(ivAvatar);
+                            } else {
+                                ivAvatar.setImageResource(R.drawable.bili_default_avatar);
+                            }
                         }
                     }
+
                 }
             }
         });
+        editUserAccount.setText(SPUtils.getInstance().getString("username"));
 
     }
 
@@ -203,6 +187,7 @@ public class LoginActivity extends JJsActivity<LoginPersenter> implements LoginV
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        LoadingDialog.init(LoginActivity.this);
                         mPersenter.login(editUserAccount.getText().toString(), editUserPassword.getText().toString(), imei);
                     }
 

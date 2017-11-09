@@ -49,7 +49,7 @@
                     android:src="@drawable/ic_close"/>
             </RelativeLayout>
 
-            <include layout="@layout/line_v"/>
+            <include layout="@layout/line_h"/>
             <!--组分类-->
             <LinearLayout
                 android:id="@+id/ll_account_type"

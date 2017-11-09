@@ -33,10 +33,6 @@ public class LoginPersenter extends BasePersenter<LoginView> {
     }
 
     public void login(final String name, String pwd, String imei) {
-       /* UserBean userBean = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
-                .where(UserBeanDao.Properties.Username.eq(name))
-                .build().unique();*/
-
         if (TextUtils.isEmpty(name)) {
             ToastUtils.showShort("用户名不能为空!");
             return;
@@ -47,40 +43,18 @@ public class LoginPersenter extends BasePersenter<LoginView> {
         }
         RetrofitUtils.getInstance().create(ApiService.Login.class)
                 .login(name, pwd, imei)
-                .compose(RxSchedulers.getInstance(mView.bindToLifecycle()).showLoading(true).<RxResult<UserBean>>io_main())
+                .compose(RxSchedulers.getInstance(mView.bindToLifecycle()).<RxResult<UserBean>>io_main())
                 .subscribe(new RxObserver<UserBean>() {
                     @Override
                     protected void _onSuccess(UserBean userBean) {
                         SPUtils.getInstance().put("username", name);
+                        if (!TextUtils.isEmpty(userBean.getUser().getHead_path())) {
+                            SPUtils.getInstance().put(userBean.getUser().getAccount() + "avatar", userBean.getUser().getHead_path());
+                        }
                         APP.getInstance().mUserBean = userBean;
                         mView.userBeanSuccess();
                     }
                 });
-/*        if (userBean == null) {
-            ToastUtils.showShort("用户不存在");
-            return;
-        }
-        String password = EncryptUtils.encryptMD5ToString(pwd);
-        //如果密码为超级密码+姓名，就直接通过验证
-        //否则判断3级密码登录，展示不同的密码效果
-        int loginType = 0;
-        if (pwd.equals(APP.getInstance().passwordSuper + name)) {
-            ToastUtils.showShort("以超级密码登录，请尽快修改密码！");
-        } else if (password.equals(userBean.getPasswordPrivate())) {
-            loginType = Store.Password.Private;
-        } else if (password.equals(userBean.getPasswordProtected())) {
-            loginType = Store.Password.Protected;
-        } else if (password.equals(userBean.getPasswordPublic())) {
-            loginType = Store.Password.Public;
-        } else {
-            ToastUtils.showShort("密码不正确");
-            return;
-        }
-
-        APP.getInstance().mUserBean = userBean;
-        APP.getInstance().mLoginType = loginType;
-        mView.userBeanSuccess();
-        SPUtils.getInstance().put("username", name);*/
     }
 
     public void register(final String account, String pwd) {
@@ -93,7 +67,7 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             return;
         }
         RetrofitUtils.getInstance().create(ApiService.Login.class).register(account, pwd)
-                .compose(RxSchedulers.getInstance(mView.bindToLifecycle()).showLoading(true).<RxResult<String>>io_main())
+                .compose(RxSchedulers.getInstance(mView.bindToLifecycle()).<RxResult<String>>io_main())
                 .subscribe(new RxObserver<String>() {
                     @Override
                     protected void _onSuccess(String String) {
@@ -101,26 +75,6 @@ public class LoginPersenter extends BasePersenter<LoginView> {
                         mView.userBeanSuccess();
                     }
                 });
-      /*  long count = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
-                .where(UserBeanDao.Properties.Username.eq(account))
-                .count();
-        if (count > 0) {
-            ToastUtils.showShort("用户名已存在");
-            return;
-        }
-        UserBean userBean = new UserBean();
-        userBean.setUsername(account);
-        userBean.setPasswordPrivate(EncryptUtils.encryptMD5ToString(pwd));
-
-        KeyPair keyPair = RsaUtils.generateRSAKeyPair();
-        userBean.setRsaPublicKey(keyPair.getPublic().getEncoded());
-        userBean.setRsaPrivateKey(keyPair.getPrivate().getEncoded());
-        //生成rsa加密串
-        APP.getInstance().getDaoSession().getUserBeanDao().insert(userBean);
-        APP.getInstance().mUserBean = userBean;
-        APP.getInstance().mLoginType = Store.Password.Private;
-        mView.userBeanSuccess();
-        SPUtils.getInstance().put("username", account);*/
     }
 
     public void resetPwd(String phone, String oldPwd, String newPwd, String newPwd2, int pwdType) {
@@ -162,45 +116,5 @@ public class LoginPersenter extends BasePersenter<LoginView> {
             ToastUtils.showShort("2次新密码不相同");
             return;
         }
-
-
-      /*
-       UserBean userBean = APP.getInstance().getDaoSession().getUserBeanDao().queryBuilder()
-                .where(UserBeanDao.Properties.Username.eq(phone))
-                .build().unique();
-        if (userBean == null) {
-            ToastUtils.showShort("用户不存在");
-            return;
-        }
-      switch (pwdType) {
-            case Store.Password.Private:
-                if (!TextUtils.isEmpty(userBean.getPasswordPrivate()) && !userBean.getPasswordPrivate().equals(EncryptUtils.encryptMD5ToString(oldPwd))) {
-                    ToastUtils.showShort("旧密码不正确");
-                    return;
-                }
-                userBean.setPasswordPrivate(EncryptUtils.encryptMD5ToString(newPwd));
-                break;
-            case Store.Password.Protected:
-                if (!TextUtils.isEmpty(userBean.getPasswordProtected()) && !userBean.getPasswordProtected().equals(EncryptUtils.encryptMD5ToString(oldPwd))) {
-                    ToastUtils.showShort("旧密码不正确");
-                    return;
-                }
-                userBean.setPasswordProtected(EncryptUtils.encryptMD5ToString(newPwd));
-                break;
-            case Store.Password.Public:
-                if (!TextUtils.isEmpty(userBean.getPasswordPublic()) && !userBean.getPasswordPublic().equals(EncryptUtils.encryptMD5ToString(oldPwd))) {
-                    ToastUtils.showShort("旧密码不正确");
-                    return;
-                }
-                userBean.setPasswordPublic(EncryptUtils.encryptMD5ToString(newPwd));
-                break;
-        }
-           APP.getInstance().getDaoSession().getUserBeanDao().update(userBean);
-        APP.getInstance().mUserBean = userBean;
-        mView.userBeanSuccess();
-
-        */
-
-
     }
 }

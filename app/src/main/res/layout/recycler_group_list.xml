@@ -13,6 +13,6 @@
         android:text="1111111"
         android:textSize="12sp"/>
 
-    <include layout="@layout/line_v"/>
+    <include layout="@layout/line_h"/>
 
 </LinearLayout>

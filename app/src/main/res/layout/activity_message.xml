@@ -61,7 +61,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <include layout="@layout/line_v"/>
+    <include layout="@layout/line_h"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_message_list"

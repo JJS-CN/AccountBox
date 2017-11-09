@@ -23,7 +23,7 @@ import com.account.box.http.ApiService;
 import com.account.box.http.RxObserver;
 import com.account.box.utils.ToolUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.jjs.base.JJsActivity;
+import com.jjs.base.base.BaseActivity;
 import com.jjs.base.http.RetrofitUtils;
 import com.jjs.base.http.RxSchedulers;
 import com.jjs.base.utils.recyclerview.QuickAdapter;
@@ -42,7 +42,7 @@ import butterknife.OnClick;
  * Created by aa on 2017/10/14.
  */
 
-public class MessageListActivity extends JJsActivity {
+public class MessageListActivity extends BaseActivity {
 
     @BindView(R.id.tool)
     Toolbar mTool;
@@ -90,8 +90,12 @@ public class MessageListActivity extends JJsActivity {
         mQuickAdapter = new QuickAdapter<MessageBean>(R.layout.recycler_message, mMessageSendList) {
             @Override
             public void _convert(QuickHolder quickHolder, MessageBean messageBean) {
-                quickHolder.setText(R.id.tv_send, messageBean.getSend_user_id());
-                // quickHolder.setText(R.id.tv_time, messageBean.getTimeStr());
+                if (APP.getInstance().mUserBean.getUser().getId().equals(messageBean.getSend_user_id())) {
+                    quickHolder.setText(R.id.tv_send, "接收人id：" + messageBean.getReceive_user_id());
+                } else {
+                    quickHolder.setText(R.id.tv_send, "发送人id：" + messageBean.getSend_user_id());
+                }
+                quickHolder.setText(R.id.tv_time, "");
                 quickHolder.setText(R.id.tv_message, messageBean.getContent());
                 quickHolder.setVisible(R.id.shape_read, !messageBean.isRead() && checkPostion != 0);
                 LabelView labelView = quickHolder.getView(R.id.label);
@@ -103,7 +107,6 @@ public class MessageListActivity extends JJsActivity {
                     case "2":
                         labelView.setText("已同意");
                         labelView.setBgColor(getResources().getColor(R.color.Green));
-
                         break;
                     case "3":
                         labelView.setText("被拒绝");

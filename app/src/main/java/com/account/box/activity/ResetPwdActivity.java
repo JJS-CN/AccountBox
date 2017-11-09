@@ -6,16 +6,16 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import com.account.box.APP;
 import com.account.box.R;
 import com.account.box.bean.RxResult;
 import com.account.box.http.ApiService;
 import com.account.box.http.RxObserver;
+import com.account.box.utils.ToolUtils;
 import com.blankj.utilcode.util.StringUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.jjs.base.JJsActivity;
+import com.jjs.base.base.BaseActivity;
 import com.jjs.base.http.RetrofitUtils;
 import com.jjs.base.http.RxSchedulers;
 
@@ -27,7 +27,7 @@ import butterknife.OnClick;
  * Created by Administrator on 2017/9/29.
  */
 
-public class ResetPwdActivity extends JJsActivity {
+public class ResetPwdActivity extends BaseActivity {
 
     @BindView(R.id.tool)
     Toolbar mTool;
@@ -47,15 +47,7 @@ public class ResetPwdActivity extends JJsActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
-        mTool.setSubtitle("修改密码");
-        setSupportActionBar(mTool);
-        mTool.setNavigationIcon(R.drawable.ic_back);
-        mTool.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        ToolUtils.initTool(this, mTool, "修改密码", true);
     }
 
     @Override
@@ -77,10 +69,7 @@ public class ResetPwdActivity extends JJsActivity {
             ToastUtils.showShort("2次新密码不一致");
             return;
         }
-        if (oldPwd.equals(newPwd1)) {
-            ToastUtils.showShort("新密码与旧密码相同");
-            return;
-        }
+
         RetrofitUtils.getInstance()
                 .create(ApiService.User.class)
                 .changePassword(APP.getInstance().mUserBean.getUser().getAccount(), oldPwd, newPwd1)

@@ -18,7 +18,7 @@ import com.account.box.activity.persenter.LoginPersenter;
 import com.account.box.activity.view.LoginView;
 import com.blankj.utilcode.util.PermissionUtils;
 import com.blankj.utilcode.util.ToastUtils;
-import com.jjs.base.JJsActivity;
+import com.jjs.base.base.BaseActivity;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -28,7 +28,7 @@ import butterknife.OnClick;
  * Created by aa on 2017/8/10.
  */
 
-public class RegisterActivity extends JJsActivity<LoginPersenter> implements LoginView {
+public class RegisterActivity extends BaseActivity<LoginPersenter> implements LoginView {
 
     @BindView(R.id.tool)
     Toolbar mTool;
