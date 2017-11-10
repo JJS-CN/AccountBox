@@ -17,6 +17,8 @@ import com.jjs.base.utils.UEHandler;
 import com.taobao.sophix.PatchStatus;
 import com.taobao.sophix.SophixManager;
 import com.taobao.sophix.listener.PatchLoadStatusListener;
+import com.tencent.bugly.Bugly;
+import com.tencent.bugly.beta.Beta;
 
 import java.io.File;
 
@@ -39,18 +41,26 @@ public class APP extends BaseApplication {
         mApplication = this;
         //需要在super之前调用设置
         super.onCreate();
-        UEHandler.init(this,LauncherActivity.class);
+        //异常捕获
+        UEHandler.init(this, LauncherActivity.class);
+        //阿里热修复
         SophixManager.getInstance().queryAndLoadNewPatch();
         initActLifecycle();
+        //极光推送
         JPushInterface.setDebugMode(getDebug());
         JPushInterface.init(this);
+        //bugly异常上报
+        Bugly.init(this, "6605fb78b2", getDebug());
+        Beta.autoDownloadOnWifi = true;//wifi情况下自动下载
+        Beta.canShowApkInfo = true;//是否显示弹窗中的apk信息
+        //Beta.canShowUpgradeActs.add(MainActivity.class);//可显示弹窗的Activity，不设置则所有页面显示
 
     }
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        initDebug(false,"http://119.29.238.157/api/","http://119.29.238.157/api/");
+        initDebug(true, "http://119.29.238.157/api/", "http://119.29.238.157/api/");
         SophixManager.getInstance()
                 .setContext(this)
                 .setAppVersion(BuildConfig.VERSION_NAME)

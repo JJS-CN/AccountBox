@@ -167,6 +167,9 @@ public class MainActivity extends BaseActivity {
 
     private void initJPush() {
         Log.e("alias", APP.getInstance().mUserBean.getUser().getId());
+        if (JPushInterface.isPushStopped(getApplicationContext())) {
+            JPushInterface.resumePush(getApplicationContext());
+        }
         JPushInterface.setAlias(this, 1, APP.getInstance().mUserBean.getUser().getId());
     }
 
@@ -495,6 +498,8 @@ public class MainActivity extends BaseActivity {
                         break;
                     case R.id.navigation_item_loginOut:
                         SPUtils.getInstance().remove("password");
+                        APP.getInstance().mUserBean = null;
+                        JPushInterface.stopPush(getApplicationContext());
                         LoginActivity.open(MainActivity.this);
                         finish();
                         break;

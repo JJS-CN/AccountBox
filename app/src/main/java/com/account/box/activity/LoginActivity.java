@@ -199,7 +199,7 @@ public class LoginActivity extends BaseActivity<LoginPersenter> implements Login
 
                 break;
             case R.id.tv_toReset:
-                ResetPwdActivity.open(this);
+                ToastUtils.showShort("请联系：994462623@qq.com\n        或：188633921@qq.com");
                 break;
         }
     }
