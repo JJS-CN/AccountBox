@@ -23,21 +23,26 @@ import android.widget.TextView;
 
 import com.account.box.APP;
 import com.account.box.R;
+import com.account.box.Store;
 import com.account.box.bean.AccountBean;
 import com.account.box.bean.GroupBean;
 import com.account.box.bean.RxResult;
 import com.account.box.http.ApiService;
 import com.account.box.http.RxObserver;
 import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.jjs.base.http.RetrofitUtils;
 import com.jjs.base.http.RxSchedulers;
 import com.jjs.base.utils.recyclerview.QuickAdapter;
 import com.jjs.base.utils.recyclerview.QuickHolder;
+import com.jjs.base.widget.LoadingDialog;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import java.util.List;
+
+import static com.account.box.APP.getDaoInstant;
 
 /**
  * 说明：
@@ -222,36 +227,70 @@ public class AddDialog extends Dialog {
                 }
                 if (accountBean == null) {
                     //先判断是否有重复的，再进行添加操作！！！
-                    RetrofitUtils.getInstance().create(ApiService.Account.class)
-                            .addAccountToGroup(APP.getInstance().mUserBean.getUser().getId(), checkListBean.getId(), accountTitle, accountName, accountPwd, accountMsg)
-                            .compose(RxSchedulers.getInstance(mContext.bindToLifecycle()).showLoading(true).<RxResult<String>>io_main())
-                            .subscribe(new RxObserver<String>() {
-                                @Override
-                                protected void _onSuccess(String msg) {
-                                    if (mChangeListner != null) {
-                                        mChangeListner.onChange(0);
+                    if (SPUtils.getInstance().getBoolean(Store.Setting.hasSynchronize, true)) {
+                        RetrofitUtils.getInstance().create(ApiService.Account.class)
+                                .addAccountToGroup(APP.getInstance().mUserBean.getUser().getId(), checkListBean.getId(), accountTitle, accountName, accountPwd, accountMsg)
+                                .compose(RxSchedulers.getInstance(mContext.bindToLifecycle()).<RxResult<String>>io_main())
+                                .subscribe(new RxObserver<String>() {
+                                    @Override
+                                    protected void _onSuccess(String msg) {
+                                        if (mChangeListner != null) {
+                                            mChangeListner.onChange(0);
+                                        }
+                                        dismiss();
+                                        ToastUtils.showShort("账号已添加");
                                     }
-                                    dismiss();
-                                    ToastUtils.showShort("账号已添加");
-                                }
-                            });
+                                });
+                    } else {
+                        LoadingDialog.show();
+                        AccountBean bean = new AccountBean();
+                        bean.setUserId(APP.getInstance().mUserBean.getUser().getId());
+                        bean.setGroup_id(checkListBean.getId());
+                        bean.setTitle(accountTitle);
+                        bean.setAccount_name(accountName);
+                        bean.setPassword(accountPwd);
+                        bean.setRemark(accountMsg);
+                        long resultCode = getDaoInstant().getAccountBeanDao()
+                                .insert(bean);
+                        if (resultCode > 0) {
+                            ToastUtils.showShort("添加成功");
+                            dismiss();
+                            if (mChangeListner != null) {
+                                mChangeListner.onChange(0);
+                            }
+                        } else {
+                            ToastUtils.showShort("添加失败");
+                        }
+                        LoadingDialog.hide();
+                    }
                 } else {
-                    RetrofitUtils.getInstance().create(ApiService.Account.class)
-                            .updateAccount(accountBean.getId(), accountBean.getGroup_id(), accountTitle, accountName, accountPwd, accountMsg)
-                            .compose(RxSchedulers.getInstance(mContext.bindToLifecycle()).showLoading(true).<RxResult<AccountBean>>io_main())
-                            .subscribe(new RxObserver<AccountBean>() {
-                                @Override
-                                protected void _onSuccess(AccountBean account) {
-                                    if (mChangeListner != null) {
-                                        mChangeListner.onChange(1);
+                    if (!accountBean.isSql()) {
+                        RetrofitUtils.getInstance().create(ApiService.Account.class)
+                                .updateAccount(accountBean.getId(), accountBean.getGroup_id(), accountTitle, accountName, accountPwd, accountMsg)
+                                .compose(RxSchedulers.getInstance(mContext.bindToLifecycle()).<RxResult<AccountBean>>io_main())
+                                .subscribe(new RxObserver<AccountBean>() {
+                                    @Override
+                                    protected void _onSuccess(AccountBean account) {
+                                        if (mChangeListner != null) {
+                                            mChangeListner.onChange(1);
+                                        }
+                                        dismiss();
+                                        ToastUtils.showShort("账号已更新");
                                     }
-                                    dismiss();
-                                    ToastUtils.showShort("账号已更新");
-                                }
-                            });
+                                });
+                    } else {
+                        LoadingDialog.show();
+                        accountBean.setGroup_id(accountBean.getGroup_id());
+                        accountBean.setTitle(accountTitle);
+                        accountBean.setAccount_name(accountName);
+                        accountBean.setPassword(accountPwd);
+                        accountBean.setRemark(accountMsg);
+                        APP.getDaoInstant().getAccountBeanDao().update(accountBean);
+                        dismiss();
+                        ToastUtils.showShort("账号已更新");
+                        LoadingDialog.hide();
+                    }
                 }
-
-
             }
         });
         mCheckGroup.setOnClickListener(new View.OnClickListener() {

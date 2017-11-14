@@ -27,7 +27,6 @@ import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.jjs.base.base.BaseActivity;
 import com.jjs.base.utils.GlideUtils;
-import com.jjs.base.widget.LoadingDialog;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -71,7 +70,6 @@ public class LoginActivity extends BaseActivity<LoginPersenter> implements Login
         setContentView(R.layout.activity_login);
         mPersenter = new LoginPersenter(this);
         hasExitDouble();
-
         //设置toolbar
         mTool.setNavigationIcon(R.drawable.nulls);
         ToolUtils.initTool(this, mTool, "登录", false);
@@ -187,13 +185,11 @@ public class LoginActivity extends BaseActivity<LoginPersenter> implements Login
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        LoadingDialog.init(LoginActivity.this);
                         mPersenter.login(editUserAccount.getText().toString(), editUserPassword.getText().toString(), imei);
                     }
 
                     @Override
                     public void onPermissionDenied(String[] deniedPermissions) {
-
                     }
                 });
 

@@ -3,12 +3,15 @@ package com.account.box;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.account.box.bean.DaoMaster;
+import com.account.box.bean.DaoSession;
 import com.account.box.bean.UserBean;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.SDCardUtils;
@@ -189,4 +192,20 @@ public class APP extends BaseApplication {
 
 
     }
+
+    /**
+     * 返回数据库操作类
+     */
+    private static DaoSession daoSession;
+
+    public static DaoSession getDaoInstant() {
+        if (daoSession == null) {
+            DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(mApplication, "account.db", null);
+            SQLiteDatabase db = helper.getWritableDatabase();
+            DaoMaster daoMaster = new DaoMaster(db);
+            daoSession = daoMaster.newSession();
+        }
+        return daoSession;
+    }
+
 }

@@ -24,4 +24,8 @@ public class Store extends BaseStore {
     public static class ResultCode {
         public static final int Message = 101;
     }
+
+    public static class Setting {
+        public static final String hasSynchronize = "hasSynchronize";
+    }
 }

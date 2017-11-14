@@ -1,16 +1,44 @@
 package com.account.box.bean;
 
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Transient;
+import org.greenrobot.greendao.annotation.Generated;
+
 /**
  * 说明：只保存账号数据，层级关系由另一张表维护
  * Created by Administrator on 2017/8/26.
  */
+@Entity
 public class AccountBean {
+    @Id(autoincrement = true)
+    private Long sql_id;
+    @Transient
     private String id;
+    private String userId;
     private String title;
     private String remark;//标题
     private String account_name;
     private String password;
     private String group_id;
+
+
+    @Generated(hash = 274189084)
+    public AccountBean(Long sql_id, String userId, String title, String remark,
+                       String account_name, String password, String group_id) {
+        this.sql_id = sql_id;
+        this.userId = userId;
+        this.title = title;
+        this.remark = remark;
+        this.account_name = account_name;
+        this.password = password;
+        this.group_id = group_id;
+    }
+
+    @Generated(hash = 1267506976)
+    public AccountBean() {
+    }
+
 
     public String getId() {
         return id;
@@ -70,5 +98,25 @@ public class AccountBean {
                 ", password='" + password + '\'' +
                 ", group_id='" + group_id + '\'' +
                 '}';
+    }
+
+    public Long getSql_id() {
+        return this.sql_id;
+    }
+
+    public void setSql_id(Long sql_id) {
+        this.sql_id = sql_id;
+    }
+
+    public boolean isSql() {
+        return sql_id == null || sql_id == 0 ? false : true;
+    }
+
+    public String getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

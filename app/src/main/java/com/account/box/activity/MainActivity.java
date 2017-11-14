@@ -46,6 +46,7 @@ import com.account.box.APP;
 import com.account.box.R;
 import com.account.box.Store;
 import com.account.box.bean.AccountBean;
+import com.account.box.bean.AccountBeanDao;
 import com.account.box.bean.GroupBean;
 import com.account.box.bean.RxResult;
 import com.account.box.http.ApiService;
@@ -202,7 +203,7 @@ public class MainActivity extends BaseActivity {
                 //需要重置更新后的数据，否则查看不了
                 CardView cardGroupName = quickHolder.getView(R.id.card_group_name);//组bg
                 TextView groupName = quickHolder.getView(R.id.tv_group_name);//组名
-                TextView accountCount = quickHolder.getView(R.id.tv_accountCount);//账号数量
+                final TextView accountCount = quickHolder.getView(R.id.tv_accountCount);//账号数量
                 TextView shareName = quickHolder.getView(R.id.tv_share_name);//分享人名称
                 final RecyclerView rv = quickHolder.getView(R.id.rv_account_list);//账号列表
                 View iv_delete = quickHolder.getView(R.id.iv_delete);//组删除
@@ -361,11 +362,14 @@ public class MainActivity extends BaseActivity {
 
                         quickHolder.addOnClickListener(R.id.iv_update);
                         quickHolder.addOnClickListener(R.id.iv_delete);
+                        quickHolder.addOnClickListener(R.id.iv_upload);
+                        quickHolder.setVisible(R.id.iv_upload, accountBean.isSql());
                         //非管理员无权删除
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             quickHolder.itemView.setZ(-quickHolder.getAdapterPosition() * 4);
                             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) quickHolder.itemView.getLayoutParams();
-                            params.setMargins(ConvertUtils.dp2px((5 - Math.abs(quickHolder.getAdapterPosition() % 10 - 4)) * 3), ConvertUtils.dp2px(quickHolder.getAdapterPosition() == 0 ? -10 : -15), 0, 0);
+                            params.setMargins(ConvertUtils.dp2px((5 - Math.abs(quickHolder.getAdapterPosition() % 10 - 4)) * 3),
+                                    ConvertUtils.dp2px(quickHolder.getAdapterPosition() == 0 ? -10 : -15), 0, 0);
                             quickHolder.itemView.setLayoutParams(params);
                         } else {
                             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) quickHolder.itemView.getLayoutParams();
@@ -378,9 +382,10 @@ public class MainActivity extends BaseActivity {
                 adapter.setOnItemChildClickListener(new OnItemChildClickListener() {
                     @Override
                     public void onItemChildClick(BaseQuickAdapter adapter, View view, final int position) {
+                        final AccountBean accountBean = groupBean.getAccounts().get(position);
                         switch (view.getId()) {
                             case R.id.iv_update:
-                                OpenDialog(groupBean.getAccounts().get(position));
+                                OpenDialog(accountBean);
                                 break;
                             case R.id.iv_delete:
                                 //删除数据
@@ -390,21 +395,39 @@ public class MainActivity extends BaseActivity {
                                         .setPositiveButton("确定删除", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                //更新数据
-                                                RetrofitUtils.getInstance()
-                                                        .create(ApiService.Account.class)
-                                                        .deleteAccount(APP.getInstance().mUserBean.getUser().getId(), groupBean.getAccounts().get(position).getId())
-                                                        .compose(RxSchedulers.getInstance(MainActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
-                                                        .subscribe(new RxObserver<String>() {
-                                                            @Override
-                                                            protected void _onSuccess(String s) {
-                                                                updateAccountList();
-                                                            }
-                                                        });
+                                                if (!accountBean.isSql()) {
+                                                    RetrofitUtils.getInstance()
+                                                            .create(ApiService.Account.class)
+                                                            .deleteAccount(APP.getInstance().mUserBean.getUser().getId(), accountBean.getId())
+                                                            .compose(RxSchedulers.getInstance(MainActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
+                                                            .subscribe(new RxObserver<String>() {
+                                                                @Override
+                                                                protected void _onSuccess(String s) {
+                                                                    updateAccountList();
+                                                                }
+                                                            });
+                                                } else {
+                                                    APP.getDaoInstant().getAccountBeanDao().delete(accountBean);
+                                                    ToastUtils.showShort("删除成功");
+                                                    updateAccountList();
+                                                }
                                             }
                                         })
                                         .setNegativeButton("取消", null)
                                         .create().show();
+                                break;
+                            case R.id.iv_upload:
+                                //更新数据
+                                RetrofitUtils.getInstance().create(ApiService.Account.class)
+                                        .addAccountToGroup(APP.getInstance().mUserBean.getUser().getId(),accountBean.getGroup_id() , accountBean.getTitle(), accountBean.getAccount_name(), accountBean.getPassword(), accountBean.getRemark())
+                                        .compose(RxSchedulers.getInstance(MainActivity.this.bindToLifecycle()).<RxResult<String>>io_main())
+                                        .subscribe(new RxObserver<String>() {
+                                            @Override
+                                            protected void _onSuccess(String msg) {
+                                                ToastUtils.showShort("账号已添加");
+                                                updateAccountList();
+                                            }
+                                        });
                                 break;
                         }
                     }
@@ -536,6 +559,55 @@ public class MainActivity extends BaseActivity {
                     protected void _onSuccess(List<GroupBean> groupBeen) {
                         Collections.sort(groupBeen);
                         mGroupBeanList = groupBeen;
+                        List<AccountBean> accountList = APP.getDaoInstant().getAccountBeanDao()
+                                .queryBuilder()
+                                .where(AccountBeanDao.Properties.UserId.eq(APP.getInstance().mUserBean.getUser().getId()))
+                                .build().list();
+                        //实际很少出现这种情况，用户名密码有相同的可能，再判断title是否相同感觉太过了
+                        /*for (int i = 0; i < groupBeen.size(); i++) {
+                            if (groupBeen.get(i).getAccounts() != null && groupBeen.get(i).getAccounts().size() != 0) {
+                                for (int j = 0; j < groupBeen.get(i).getAccounts().size(); j++) {
+                                    AccountBean a1 = groupBeen.get(i).getAccounts().get(j);
+                                    for (int k = 0; k < accountList.size(); k++) {
+                                        AccountBean b1 = accountList.get(k);
+                                        if (a1.getAccount_name().equals(b1.getAccount_name()) && a1.getPassword().equals(b1.getPassword())&&a1.get) {
+
+                                        }
+                                    }
+                                }
+                            }
+                        }*/
+                        //不知accountList是否会出现null情况，运行测试
+                        for (int i = 0; i < groupBeen.size(); i++) {
+                            for (int j = 0; j < groupBeen.get(i).getAccounts().size(); j++) {
+                                AccountBean a1 = groupBeen.get(i).getAccounts().get(j);
+                                for (int k = 0; k < accountList.size(); k++) {
+                                    if (a1.getAccount_name().equals(accountList.get(k).getAccount_name())
+                                            && a1.getPassword().equals(accountList.get(k).getPassword())
+                                            && a1.getTitle().equals(accountList.get(k).getTitle())) {
+                                        accountList.remove(k);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        //直接将所有本地数据直接添加进去。提交删除由用户自行判断
+                        for (int i = 0; i < accountList.size(); i++) {
+                            boolean isadd = false;
+                            for (int j = 0; j < groupBeen.size(); j++) {
+                                if (accountList.get(i).getGroup_id().equals(groupBeen.get(j).getId())) {
+                                    //表示相同，进行添加
+                                    isadd = true;
+                                    mGroupBeanList.get(j).getAccounts().add(accountList.get(i));
+                                    break;
+                                }
+                            }
+                            if (isadd == false) {
+                                //组不同时，添加至默认分组
+                                mGroupBeanList.get(0).getAccounts().add(accountList.get(i));
+                            }
+                        }
+                        //处理完之后，再绑定适配器进行展示（区分本地和服务器要由不同标识）
                         mQuickAdapter.setNewData(mGroupBeanList);
                         startRipple();
                         updateNavigation();

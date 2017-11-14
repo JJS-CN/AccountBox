@@ -8,10 +8,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import com.account.box.R;
+import com.account.box.Store;
 import com.account.box.utils.ToolUtils;
+import com.blankj.utilcode.util.SPUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.util.MultiTypeDelegate;
 import com.jjs.base.base.BaseActivity;
 import com.jjs.base.utils.recyclerview.QuickAdapter;
 import com.jjs.base.utils.recyclerview.QuickHolder;
@@ -53,10 +58,36 @@ public class SettingActivity extends BaseActivity {
     private void initRecyclerView() {
         settList = new ArrayList<>();
         settList.add("修改密码");
-        mQuickAdapter = new QuickAdapter<String>(R.layout.recycler_setting, settList) {
+        settList.add("自动同步服务器");
+        mQuickAdapter = new QuickAdapter<String>() {
+            @Override
+            public void initMultiType() {
+                super.initMultiType();
+                setMultiTypeDelegate(new MultiTypeDelegate<String>() {
+                    @Override
+                    protected int getItemType(String s) {
+                        return "自动同步服务器".equals(s) ? 1 : 0;
+                    }
+                });
+                getMultiTypeDelegate().registerItemType(1, R.layout.recycler_setting_switch)
+                        .registerItemType(0, R.layout.recycler_setting_default);
+            }
+
             @Override
             public void _convert(QuickHolder quickHolder, String s) {
                 quickHolder.setText(R.id.tv_name, s);
+                switch (s) {
+                    case "自动同步服务器":
+                        Switch aSwitch = quickHolder.getView(R.id.switch_change);
+                        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                SPUtils.getInstance().put(Store.Setting.hasSynchronize, isChecked);
+                            }
+                        });
+                        aSwitch.setChecked(SPUtils.getInstance().getBoolean(Store.Setting.hasSynchronize, true));
+                        break;
+                }
             }
         };
         mQuickAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
@@ -66,9 +97,12 @@ public class SettingActivity extends BaseActivity {
                     case "修改密码":
                         ResetPwdActivity.open(SettingActivity.this);
                         break;
+                    case "自动同步服务器":
+                        break;
                 }
             }
         });
+        mQuickAdapter.setNewData(settList);
         mRvSetting.setLayoutManager(new LinearLayoutManager(this));
         mRvSetting.setAdapter(mQuickAdapter);
     }
