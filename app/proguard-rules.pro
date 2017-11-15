@@ -164,13 +164,10 @@
 -keep class butterknife.** { *; }
 -dontwarn butterknife.internal.**
 -keep class **$$ViewBinder { *; }
-# Retain generated class which implement Unbinder.
 -keep public class * implements butterknife.Unbinder { public <init>(...); }
-# is used to reflectively look up the generated ViewBinding.
 -keepclasseswithmembernames class * {
     @butterknife.* <fields>;
 }
-# Prevent obfuscation of types which use ButterKnife annotations since the simple name
 -keepclasseswithmembernames class * {
     @butterknife.* <methods>;
 }
@@ -184,3 +181,20 @@
 
 #okhttp
 -dontwarn com.squareup.okhttp.**
+
+##---------------Begin: proguard configuration for Gson  ----------
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn sun.misc.**
+-keep class com.account.box.bean.** { *; }
+
+# JBase
+-keep class com.jjs.base.** { *; }
+
+#glide
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public class * extends com.bumptech.glide.module.AppGlideModule
+-keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
