@@ -1,7 +1,5 @@
 import 'package:accountbox/model/user_provider.dart';
 import 'package:accountbox/routes/app_routes.dart';
-import 'package:accountbox/ui/SignPageSix.dart';
-import 'package:accountbox/ui/user_sign_up.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:accountbox/const/color_const.dart';
@@ -12,7 +10,6 @@ import 'package:accountbox/const/string_const.dart';
 import 'package:accountbox/widget/signup_arrow_button.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:font_awesome_flutter/src/fa_duotone_icon.dart';
 
 class SignPageFour extends StatefulWidget {
   @override
@@ -206,7 +203,7 @@ class _SignPageFourState extends State<SignPageFour> {
                 bottom: _media.height / 6.3,
                 right: 15,
                 child: SignUpArrowButton(
-                  icon: IconData(0xe901, fontFamily: 'Icons'),
+                  icon: const IconData(0xe901, fontFamily: 'Icons'),
                   iconSize: 9,
                   onTap: () => {
                     if (_formKey.currentState!.validate())

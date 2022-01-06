@@ -421,7 +421,7 @@ class _HomePageState extends State<HomePage> {
           ),
           Positioned(
               right: 20,
-              bottom: 100,
+              bottom: 120,
               child: GestureDetector(
                 onTap: () {
                   isListSettingOpen = !isListSettingOpen;
@@ -458,7 +458,7 @@ class _HomePageState extends State<HomePage> {
               )),
           Positioned(
               right: 20,
-              bottom: 150,
+              bottom: 170,
               child: InkWell(
                   onTap: () {
                     if (AppConst.salt?.isEmpty ?? true) {

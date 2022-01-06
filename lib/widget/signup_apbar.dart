@@ -26,7 +26,7 @@ class SignupApbar extends StatelessWidget implements PreferredSizeWidget {
           alignment: Alignment(-0.5, 4),
           child: SignUpArrowButton(
             onTap: () => Get.back(),
-            icon: IconData(
+            icon: const IconData(
               arrow_left,
               fontFamily: "Icons",
             ),

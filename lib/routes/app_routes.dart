@@ -1,5 +1,4 @@
 import 'package:accountbox/model/bindings.dart';
-import 'package:accountbox/ui/account_info_page.dart';
 import 'package:accountbox/ui/home_page.dart';
 import 'package:accountbox/ui/setting_page.dart';
 import 'package:accountbox/ui/user_sign_in.dart';
@@ -11,7 +10,6 @@ class Routes {
   static String UserLogin = "/user/login";
   static String AppHome = "/app/home";
   static String AppSetting = "/app/setting";
-  static String AccountInfo = "/app/AccountInfo";
 
   //定义路由组
   static final pages = [
@@ -30,10 +28,6 @@ class Routes {
     GetPage(
       name: Routes.AppSetting,
       page: () => SettingPage(),
-    ),
-    GetPage(
-      name: Routes.AccountInfo,
-      page: () => AccountInfoPage(),
     ),
   ];
 }

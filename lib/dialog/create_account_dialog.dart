@@ -22,7 +22,7 @@ Widget createAccountDialog(
     BuildContext context, Function(bool isAddSuccess) call) {
   var currentIndex = 0.obs;
   var tabs = ["Account", "Group"];
-  var bodyHeight = context.height * 0.51;
+  var bodyHeight = 460.0;
   var _AccountPage = CreateAccountPage(
     callBack: call,
   );
