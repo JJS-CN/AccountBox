@@ -40,6 +40,15 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
+    signingConfigs {
+        config {
+            keyAlias 'key0'
+            keyPassword '123456'
+            storeFile file('test.keystore')
+            storePassword '123456'
+
+        }
+    }
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
@@ -48,13 +57,19 @@ android {
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.config
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.config
         }
     }
 }
